@@ -1,4 +1,4 @@
-package com.example.project1.entities;
+package com.example.project1.payload.response;
 
 import com.example.project1.repository.ResponseRepository;
 

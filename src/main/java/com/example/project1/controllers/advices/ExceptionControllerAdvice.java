@@ -1,6 +1,6 @@
 package com.example.project1.controllers.advices;
 
-import com.example.project1.entities.ResponseError;
+import com.example.project1.payload.response.ResponseError;
 import com.example.project1.exception.TestException;
 import com.example.project1.repository.ResponseRepository;
 import org.springframework.http.HttpStatus;
