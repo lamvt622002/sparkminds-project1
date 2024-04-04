@@ -1,6 +1,6 @@
 package com.example.project1.controllers;
 
-import com.example.project1.entities.ResponseMessage;
+import com.example.project1.payload.response.ResponseMessage;
 import com.example.project1.repository.ResponseRepository;
 import com.example.project1.services.TestService;
 import org.springframework.http.HttpStatus;
