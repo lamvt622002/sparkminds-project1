@@ -1,38 +1,56 @@
 package com.example.project1.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User {
     @Id
-    private String userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String username;
+
     private String email;
+
     private String password;
-    private String authority;
-    private String token;
+
+    private int failedLoginAttempts;
+
+    private LocalDateTime lockoutTime;
+
+    private int role;
+
+    private int enabled;
+
+    private int isDelete;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
     public User(){
 
     }
-    public User(String userId, String username, String email, String password, String authority, String token) {
-        this.userId = userId;
+
+    public User( String username, String email, String password, int failedLoginAttempts, LocalDateTime lockoutTime, int role, int enabled, int isDelete, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.authority = authority;
-        this.token = token;
+        this.failedLoginAttempts = failedLoginAttempts;
+        this.lockoutTime = lockoutTime;
+        this.role = role;
+        this.enabled = enabled;
+        this.isDelete = isDelete;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public Long getUserId() {
+        return id;
     }
 
     public String getUsername() {
@@ -59,19 +77,59 @@ public class User {
         this.password = password;
     }
 
-    public String getAuthority() {
-        return authority;
+    public int getFailedLoginAttempts() {
+        return failedLoginAttempts;
     }
 
-    public void setAuthority(String authority) {
-        this.authority = authority;
+    public void setFailedLoginAttempts(int failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
     }
 
-    public String getToken() {
-        return token;
+    public LocalDateTime getLockoutTime() {
+        return lockoutTime;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setLockoutTime(LocalDateTime lockoutTime) {
+        this.lockoutTime = lockoutTime;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
+    }
+
+    public int getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(int enabled) {
+        this.enabled = enabled;
+    }
+
+    public int getIsDelete() {
+        return isDelete;
+    }
+
+    public void setIsDelete(int isDelete) {
+        this.isDelete = isDelete;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
