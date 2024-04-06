@@ -29,7 +29,8 @@ public class SecurityFilterchainConfig {
         httpSecurity.addFilterBefore(authJwtRequestFilter ,UsernamePasswordAuthenticationFilter.class);
         httpSecurity.authenticationProvider(authenticationProvider);
         httpSecurity.authorizeHttpRequests(c -> c.requestMatchers("/api/auth/**").permitAll());
-        httpSecurity.authorizeHttpRequests(c -> c.anyRequest().authenticated());
+        httpSecurity.authorizeHttpRequests(c -> c.anyRequest().permitAll());
+
         return httpSecurity.build();
     }
 }

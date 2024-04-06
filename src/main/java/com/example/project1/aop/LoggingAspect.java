@@ -11,10 +11,10 @@ import java.util.logging.Logger;
 @Component
 public class LoggingAspect {
     private final Logger logger = Logger.getLogger(LoggingAspect.class.getName());
-    @Around("execution(* com.example.project1.services.*.*(..))")
-    public void log(ProceedingJoinPoint proceedingJoinPoint) throws Throwable{
-        logger.info("method will execute");
-        proceedingJoinPoint.proceed();
-        logger.info("method executed");
-    }
+//    @Around("execution(* com.example.project1.services.*.*(..))")
+//    public void log(ProceedingJoinPoint proceedingJoinPoint) throws Throwable{
+//        logger.info("method will execute");
+//        proceedingJoinPoint.proceed();
+//        logger.info("method executed");
+//    }
 }
