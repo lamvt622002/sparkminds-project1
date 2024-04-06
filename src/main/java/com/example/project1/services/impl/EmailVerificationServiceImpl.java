@@ -1,35 +1,31 @@
 package com.example.project1.services.impl;
 
 import com.example.project1.entities.EmailVerification;
-import com.example.project1.exception.DataBaseAccessException;
+import com.example.project1.entities.User;
+import com.example.project1.exception.DatabaseAccessException;
 import com.example.project1.exception.DataNotFoundExeption;
 import com.example.project1.repository.EmailVerificationRepository;
 import com.example.project1.services.EmailVerificationService;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class EmailVerificationServiceImpl implements EmailVerificationService {
     private final EmailVerificationRepository emailVerificationRepository;
+    private final UserServiceImpl userService;
 
-    public EmailVerificationServiceImpl(EmailVerificationRepository emailVerificationRepository) {
+    public EmailVerificationServiceImpl(EmailVerificationRepository emailVerificationRepository, UserServiceImpl userService) {
         this.emailVerificationRepository = emailVerificationRepository;
+        this.userService = userService;
     }
 
     @Override
-    @Transactional
-    public void findAndDeleteEmailVerificationByTokenAndEmail(String token, String email) {
-        EmailVerification emailVerification = emailVerificationRepository.findByTokenAndEmail(token, email).orElseThrow((DataNotFoundExeption::new));
+    public void verifyEmail(String token, User user) {
+        EmailVerification emailVerification = emailVerificationRepository.findByTokenAndEmail(token, user.getEmail()).orElseThrow(DataNotFoundExeption::new);
         emailVerificationRepository.delete(emailVerification);
 
-        boolean isDelete = emailVerificationRepository.existsById(emailVerification.getId());
-
-        if(!isDelete){
-            throw new DataBaseAccessException();
-        }
-
+        userService.enableUser(user);
     }
 
     @Override
@@ -37,7 +33,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         EmailVerification emailVerify = emailVerificationRepository.save(emailVerification);
 
         if(emailVerify == null){
-            throw new DataBaseAccessException();
+            throw new DatabaseAccessException();
         }
     }
 }

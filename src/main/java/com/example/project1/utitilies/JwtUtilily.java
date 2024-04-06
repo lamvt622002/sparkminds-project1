@@ -45,6 +45,8 @@ public class JwtUtilily {
     }
 
     public Boolean isTokenExpired(String token) {
+        System.out.println(extractExpiration(token));
+        System.out.println("new date: " + new Date());
         return extractExpiration(token).before(new Date());
     }
 
@@ -55,8 +57,11 @@ public class JwtUtilily {
 
     public String createToken(Map<String, Object> claims, String subject) {
         LocalDateTime localDateTime= LocalDateTime.now();
+        System.out.println("localDatetimeKnow: " + localDateTime);
         localDateTime = localDateTime.plusHours(2);
+        System.out.println("localdatetimeplus2" + localDateTime);
         Date expireTime = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        System.out.println("expireTime: "+ expireTime);
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(expireTime)
                 .signWith(ALGORITHM, SECRET_KEY).compact();

@@ -16,6 +16,9 @@ public class EmailVerification {
     private LocalDateTime createdAt;
     private LocalDateTime expireTime;
 
+    public EmailVerification(){
+
+    }
     public EmailVerification(Long userId, String email, String token, LocalDateTime createdAt, LocalDateTime expireTime) {
         this.userId = userId;
         this.email = email;

@@ -5,12 +5,12 @@ import com.example.project1.repository.ResponseRepository;
 public class ResponseError <T> implements ResponseRepository {
     private boolean success;
     private int status;
-    private T data;
+    private T message;
 
-    public ResponseError(boolean success, int status, T data) {
+    public ResponseError(boolean success, int status, T message) {
         this.success = success;
         this.status = status;
-        this.data = data;
+        this.message = message;
     }
 
     public boolean isSuccess() {
@@ -29,11 +29,11 @@ public class ResponseError <T> implements ResponseRepository {
         this.status = status;
     }
 
-    public T getData() {
-        return data;
+    public T getMessage() {
+        return message;
     }
 
-    public void setData(T data) {
-        this.data = data;
+    public void setMessage(T message) {
+        this.message = message;
     }
 }
