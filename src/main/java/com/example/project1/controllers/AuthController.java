@@ -2,11 +2,10 @@ package com.example.project1.controllers;
 
 import com.example.project1.entities.EmailVerification;
 import com.example.project1.entities.User;
-import com.example.project1.exception.AuthExistsEmailExeption;
-import com.example.project1.exception.AuthExistsUsernameExeption;
-import com.example.project1.exception.DatabaseSaveException;
+import com.example.project1.exception.*;
 import com.example.project1.payload.request.RegisterRequest;
 import com.example.project1.payload.response.LoginResponse;
+import com.example.project1.payload.response.RegisterResponse;
 import com.example.project1.payload.response.ResponseMessage;
 import com.example.project1.payload.request.LoginRequest;
 import com.example.project1.repository.ResponseRepository;
@@ -71,26 +70,28 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseRepository> register(
-            @RequestBody RegisterRequest registerRequest){
+    public ResponseEntity<ResponseRepository> register( @RequestBody RegisterRequest registerRequest){
+
         if(userService.existsByUsername(registerRequest.getUsername())){
-            throw new AuthExistsUsernameExeption();
+                throw new DataIntegrityViolationException("Username already exists in the database");
         }
         if(userService.existsByEmail(registerRequest.getEmail())){
-            throw new AuthExistsEmailExeption();
+            throw new DataIntegrityViolationException("Email already exists in the database");
         }
         LocalDateTime createdAt = LocalDateTime.now(ZoneId.systemDefault());
         LocalDateTime updatedAt = LocalDateTime.now(ZoneId.systemDefault());
 
         String passwordEncode = passwordEncoder.encode(registerRequest.getPassword());
 
-        User user = new User(registerRequest.getUsername(), registerRequest.getEmail(), passwordEncode,0,null,1,1,0,createdAt,updatedAt);
+        User user = new User(registerRequest.getUsername(), registerRequest.getEmail(), passwordEncode,0,null,1,0,0,createdAt,updatedAt);
 
         User userSaved =  userService.saveUser(user);
 
         String token = jwtUtilily.generateTokenForEmail(registerRequest.getEmail());
 
-        EmailVerification emailVerification = new EmailVerification(userSaved.getUserId(),userSaved.getEmail(), token, createdAt, createdAt.plusMinutes(15));
+        System.out.println(token);
+
+        EmailVerification emailVerification = new EmailVerification(userSaved.getId(),userSaved.getEmail(), token, createdAt, createdAt.plusHours(2));
 
         emailVerificationService.saveEmailVerificationToken(emailVerification);
 
@@ -98,6 +99,26 @@ public class AuthController {
 
         emailService.sendMessage(registerRequest.getEmail(), "Please verify your email for your account", text);
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage<>(true, HttpStatus.OK.value(), "success"));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage<>(true, HttpStatus.OK.value(), new RegisterResponse(userSaved.getId(),userSaved.getUsername(),userSaved.getEmail())));
+    }
+
+    @GetMapping("/verify-email/{token}")
+    public ResponseEntity<ResponseRepository> verifyEmail( @PathVariable String token){
+        if(token.isBlank()){
+            throw new BadRequestException("Data not found");
+        }
+        boolean isTokenExpire = jwtUtilily.isTokenExpired(token);
+        System.out.println(isTokenExpire);
+
+        String email = jwtUtilily.extractUserName(token);
+
+        User user = userService.findUserByEmail(email);
+
+        if(isTokenExpire){
+            throw new BadRequestException("Token is expired");
+        }
+        emailVerificationService.verifyEmail(token, user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage<>(true, HttpStatus.OK.value(), new RegisterResponse(user.getId(),user.getUsername(), user.getEmail())));
     }
 }

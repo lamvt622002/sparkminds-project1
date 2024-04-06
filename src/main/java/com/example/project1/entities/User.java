@@ -49,7 +49,7 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
-    public Long getUserId() {
+    public Long getId() {
         return id;
     }
 

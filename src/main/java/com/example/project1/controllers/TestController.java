@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 public class TestController {
     private final TestService testService;
@@ -21,7 +24,10 @@ public class TestController {
 
     @GetMapping("/test")
     public ResponseEntity<ResponseRepository> test(){
+        Map<String, Object> claims = new HashMap<>();
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage<>(true, HttpStatus.OK.value(), "test"));
+        String token = jwtUtilily.generateTokenForEmail("lam@gmail.com");
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage<>(true, HttpStatus.OK.value(), token));
     }
 }
