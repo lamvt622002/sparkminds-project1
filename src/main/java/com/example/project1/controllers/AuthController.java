@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -108,11 +109,12 @@ public class AuthController {
             throw new BadRequestException("Data not found");
         }
         boolean isTokenExpire = jwtUtilily.isTokenExpired(token);
-        System.out.println(isTokenExpire);
 
         String email = jwtUtilily.extractUserName(token);
 
-        User user = userService.findUserByEmail(email);
+        Optional<User> getUser = userService.findUserByEmail(email);
+
+        User user = getUser.orElseThrow(() -> new DataNotFoundExeption("User not found"));
 
         if(isTokenExpire){
             throw new BadRequestException("Token is expired");

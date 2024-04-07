@@ -20,10 +20,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public User findUserByEmail(String email) {
+    public Optional<User> findUserByEmail(String email) {
         Optional<User> getUser = userRepository.findUserByEmail(email);
-        User existsUser = getUser.orElseThrow(() -> new DataNotFoundExeption("User not found"));
-        return existsUser;
+        return getUser;
     }
 
     @Override
