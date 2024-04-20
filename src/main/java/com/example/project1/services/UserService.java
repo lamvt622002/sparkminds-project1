@@ -1,14 +1,20 @@
 package com.example.project1.services;
 
 import com.example.project1.entities.User;
+import com.example.project1.payload.request.ChangeEmailRequest;
+import com.example.project1.payload.request.ChangePasswordRequest;
+import com.example.project1.payload.request.EmailRequest;
 
 import java.util.Optional;
 
 public interface UserService {
     Optional<User> findUserByEmail(String email);
-    boolean existsByEmail(String email);
-    boolean existsByUsername(String username);
+
     User saveUser(User user);
 
-    User enableUser(User user);
+    void enableUser(User user);
+
+    void changePassword(ChangePasswordRequest changePasswordRequest);
+
+    void changeEmail(ChangeEmailRequest changeEmailRequest);
 }

@@ -1,15 +1,19 @@
 package com.example.project1.controllers.advices;
 
-import com.example.project1.exception.BadRequestException;
-import com.example.project1.exception.DataIntegrityViolationException;
-import com.example.project1.exception.DataNotFoundExeption;
-import com.example.project1.exception.DatabaseAccessException;
+import com.example.project1.exception.*;
 import com.example.project1.payload.response.ResponseError;
-import com.example.project1.repository.ResponseRepository;
+import com.example.project1.payload.response.ResponseRepository;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestControllerAdvice
 public class ExceptionControllerAdvice {
@@ -31,5 +35,37 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(DataNotFoundExeption.class)
     public ResponseEntity<ResponseRepository> dataNotFoundExeption(DataNotFoundExeption ex){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseError<>(false, HttpStatus.NOT_FOUND.value(),ex.getMessage() ));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ResponseRepository> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        List<String> errors = new ArrayList<>();
+
+        ex.getAllErrors().forEach(err -> errors.add(err.getDefaultMessage()));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseError<>(false, HttpStatus.NOT_FOUND.value(), errors));
+    }
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ResponseRepository> httpMessageNotReadableException(HttpMessageNotReadableException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseError<>(false, HttpStatus.BAD_REQUEST.value(),ex.getMessage() ));
+    }
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ResponseRepository> BadCredentialsException(BadCredentialsException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseError<>(false, HttpStatus.BAD_REQUEST.value(),ex.getMessage() ));
+    }
+
+    @ExceptionHandler(VerifyException.class)
+    public ResponseEntity<ResponseRepository> BadCredentialsException(VerifyException ex){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ResponseError<>(false, HttpStatus.FORBIDDEN.value(),ex.getMessage() ));
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ResponseRepository> expiredJwtException(ExpiredJwtException ex){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ResponseError<>(false, HttpStatus.FORBIDDEN.value(),ex.getMessage() ));
+    }
+
+    @ExceptionHandler(PasswordChangeRequiredException.class)
+    public ResponseEntity<ResponseRepository> passwordChangeRequiredException(PasswordChangeRequiredException ex){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseError<>(false, HttpStatus.UNAUTHORIZED.value(),ex.getMessage() ));
     }
 }

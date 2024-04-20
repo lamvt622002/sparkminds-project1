@@ -1,6 +1,7 @@
 package com.example.project1.security;
 
 import com.example.project1.entities.User;
+import com.example.project1.enums.UserStatus;
 import com.example.project1.exception.DataNotFoundExeption;
 import com.example.project1.services.impl.UserServiceImpl;
 import com.example.project1.utitilies.JwtUtilily;
@@ -29,19 +30,18 @@ public class AuthCheckUserEnableFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String url = request.getRequestURI();
 
-        if(url.startsWith("/api/auth")){
+        if(url.startsWith("/api/auth") || url.startsWith("/swagger-ui") || url.startsWith("/v3/api-docs")){
             filterChain.doFilter(request, response);
             return;
         }
 
         Object email = request.getAttribute("Email");
-        System.out.println("Email " + email);
 
         Optional<User> getUser = userService.findUserByEmail(((String) email));
 
         User user = getUser.orElseThrow(() -> new DataNotFoundExeption("User not found"));
 
-        if(user.getEnabled() == 0){
+        if(user.getStatus() != UserStatus.ACTIVE.getValue()){
             response.setStatus(HttpStatus.FORBIDDEN.value());
             return;
         }
