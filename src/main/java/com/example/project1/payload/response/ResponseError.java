@@ -1,7 +1,5 @@
 package com.example.project1.payload.response;
 
-import com.example.project1.repository.ResponseRepository;
-
 public class ResponseError <T> implements ResponseRepository {
     private boolean success;
     private int status;

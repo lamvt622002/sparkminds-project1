@@ -37,6 +37,7 @@ public class JwtUtilily {
     }
 
     public String extractUserName(String token) {
+        System.out.println("extract here");
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -45,6 +46,8 @@ public class JwtUtilily {
     }
 
     public Boolean isTokenExpired(String token) {
+        System.out.println("Token expired: "+ extractExpiration(token));
+        System.out.println("Now: "+ new Date());
         return extractExpiration(token).before(new Date());
     }
 
@@ -53,22 +56,22 @@ public class JwtUtilily {
         return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    public String createToken(Map<String, Object> claims, String subject) {
+    public String createToken(Map<String, Object> claims, String subject, int minutes) {
         LocalDateTime localDateTime= LocalDateTime.now();
-        localDateTime = localDateTime.plusHours(2);
+        localDateTime = localDateTime.plusMinutes(minutes);
         Date expireTime = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(expireTime)
                 .signWith(ALGORITHM, SECRET_KEY).compact();
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, int minutes) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(claims, userDetails.getUsername(), minutes);
     }
 
-    public String generateTokenForEmail(String email) {
+    public String generateTokenForEmail(String email, int minutes) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, email);
+        return createToken(claims, email, minutes);
     }
 }

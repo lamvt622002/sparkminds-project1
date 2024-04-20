@@ -1,135 +1,60 @@
 package com.example.project1.entities;
 
+import com.example.project1.enums.Role;
+import com.example.project1.enums.UserStatus;
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Builder
 @Table(name = "users")
-public class User {
+public class User extends BaseEntity{
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
+    @NonNull
+    private String firstName;
 
+    @NonNull
+    private String lastName;
+
+    @NonNull
+    private LocalDate birthDay;
+
+    @NonNull
+    private String phoneNumber;
+
+    @NonNull
     private String email;
 
+    @NonNull
     private String password;
 
-    private int failedLoginAttempts;
+    @NonNull
+    private Integer failedLoginAttempts;
 
     private LocalDateTime lockoutTime;
 
-    private int role;
+    @NonNull
+    @ManyToOne
+    @JoinColumn(name = "role")
+    private Authorities role;
 
-    private int enabled;
+    @NonNull
+    private Integer status;
 
-    private int isDelete;
+    @NonNull
+    private Integer isDelete;
 
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
-    public User(){
-
-    }
-
-    public User( String username, String email, String password, int failedLoginAttempts, LocalDateTime lockoutTime, int role, int enabled, int isDelete, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.failedLoginAttempts = failedLoginAttempts;
-        this.lockoutTime = lockoutTime;
-        this.role = role;
-        this.enabled = enabled;
-        this.isDelete = isDelete;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public int getFailedLoginAttempts() {
-        return failedLoginAttempts;
-    }
-
-    public void setFailedLoginAttempts(int failedLoginAttempts) {
-        this.failedLoginAttempts = failedLoginAttempts;
-    }
-
-    public LocalDateTime getLockoutTime() {
-        return lockoutTime;
-    }
-
-    public void setLockoutTime(LocalDateTime lockoutTime) {
-        this.lockoutTime = lockoutTime;
-    }
-
-    public int getRole() {
-        return role;
-    }
-
-    public void setRole(int role) {
-        this.role = role;
-    }
-
-    public int getEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(int enabled) {
-        this.enabled = enabled;
-    }
-
-    public int getIsDelete() {
-        return isDelete;
-    }
-
-    public void setIsDelete(int isDelete) {
-        this.isDelete = isDelete;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

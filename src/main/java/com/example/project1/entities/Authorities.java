@@ -1,40 +1,22 @@
 package com.example.project1.entities;
 
 import com.example.project1.enums.Role;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Table(name = "authorities")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Authorities {
     @Id
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-    private Role role;
-
-    public Authorities(){
-
-    }
-
-    public Authorities(int id, Role role) {
-        this.id = id;
-        this.role = role;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
+    private String authority;
 }

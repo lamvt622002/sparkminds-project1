@@ -1,27 +1,31 @@
 package com.example.project1.payload.response;
 
+import lombok.*;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class LoginResponse {
+    private String firstName;
+
+    private String lastName;
+
     private String email;
-    private String token;
 
-    public LoginResponse(String email, String token) {
-        this.email = email;
-        this.token = token;
-    }
+    private LocalDate birthDay;
 
-    public String getEmail() {
-        return email;
-    }
+    private String phoneNumber;
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    private String role;
 
-    public String getToken() {
-        return token;
-    }
+    private String status;
 
-    public void setToken(String token) {
-        this.token = token;
-    }
+    private String accessToken;
+
+    private String refreshToken;
 }
