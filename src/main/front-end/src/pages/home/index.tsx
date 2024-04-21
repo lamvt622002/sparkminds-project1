@@ -1,20 +1,30 @@
 import { Box, Typography } from "@mui/material";
+import Table from "components/Table";
+
+
 import useStore from "stores/user";
 import { test } from "api/auth";
-export default function HomePage(){
-    const {user} = useStore();
+import useHome from "./useHome";
+import MainLayout from "components/layouts/MainLayout";
 
-    const handleTest = async () => {
-        const res = await test();
-        console.log(res);
-    }
-    handleTest();
+export default function HomePage(){
+    // const {user} = useStore();
+
+    // const handleTest = async () => {
+    //     const res = await test();
+    //     console.log(res);
+    // }
+    // handleTest();
+
+    const {columns, books, loading, handleOnCellClick, totalPage, currentPage} = useHome()
 
     return(
-        <Box>
+        <MainLayout>
             <Typography variant="body2">
-                hello {user?.firstName} {user?.lastName}
+                hi
             </Typography>
-        </Box>
+            <Table columns={columns} rows={books} loading={loading} handleOnCellClick={handleOnCellClick} totalPage={totalPage} currentPage={currentPage}/>
+        </MainLayout>
+       
     )
 }
