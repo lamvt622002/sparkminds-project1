@@ -1,0 +1,54 @@
+@import 'styles/base/mixin.scss';
+@import 'styles/base/variables.scss';
+
+.layout{
+    min-height: 100vh;
+    background-color: $color-graybase-700;
+    overflow-y: auto;
+    .sider{
+        background-color: $color-graybase-700;
+        border-right: 1px solid $color-graybase-700;
+        .logo{
+            width: 170px;
+            margin: auto;
+            height: 60.91px;
+            transition:width 1s linear;
+        }
+        .logoMini{
+            width: 40px;
+            margin: auto;
+            padding: 10px 0;
+            height: 56px;
+        }
+        .menuSider{
+            background-color: $color-graybase-700;
+            color:white
+        }
+    }
+    .children{
+        .header{
+            background-color: $color-graybase-700;
+            color:white;
+            border-bottom: 1px solid $color-graybase-600;
+            display:flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .content{
+            padding:20px;
+            background-color: $color-graybase-600;
+            color:white;
+            overflow-y: auto;
+            height: calc(100vh - 65px);
+        }
+        .content::-webkit-scrollbar{
+            -webkit-appearance: none;
+            width: 8px;
+        }
+        .content::-webkit-scrollbar-thumb{
+            border-radius: 60px;
+            background-color: $color-graybase-400;
+            box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+        }
+    }
+}

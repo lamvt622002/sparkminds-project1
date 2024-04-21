@@ -9,6 +9,8 @@ import ChangePassword from "pages/auth/ChangePassword";
 import useStore from "stores/user"
 import RegularRoute from "./RegularRoute";
 import { Status } from "types/IAccount";
+import HomePage from "pages/home";
+import MainLayout from "components/layouts/MainLayout";
 export default function WebRoute(){
     const {user} = useStore();
 
@@ -22,6 +24,7 @@ export default function WebRoute(){
                 <Route path="change-password" element={user? <Navigate to={"/home"}/> : <ChangePassword/>}/>
                 <Route path="verify-email" element={user? <Navigate to={"/home"}/> : <VerifyEmail/>}/>
                 {/* regular route*/}
+                <Route path="dash-board" element={<HomePage/>}/>
                 <Route  path="/*" element={user? <RegularRoute/> : <Navigate to={"/login"}/>}/>
             </Routes>
         </BrowserRouter>

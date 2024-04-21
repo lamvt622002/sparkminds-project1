@@ -14,9 +14,12 @@ export const CONFIG = {
         LOGOUT: '/logout',
         REGISTER: '/register',
         FORGOT_PASSWORD: '/forgot-password',
-        CHANGE_PASSWORD: '/change-password'
+        CHANGE_PASSWORD: '/change-password',
+        ACCOUNT_SETTING: '/account-setting'
     },
     IMAGES:{
-        EMAIL_VERIFICATION: '/images/email_verifycation_image.jpg'
+        EMAIL_VERIFICATION: '/images/email_verifycation_image.jpg',
+        SPARKMINDS_LOGO:'/images/logo-sparkminds.png',
+        SPARKMINDS_LOGO_MINI:'/images/logo-sparkminds-mini.jpg'
     }
 }
