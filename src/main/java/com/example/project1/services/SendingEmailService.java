@@ -1,5 +1,6 @@
 package com.example.project1.services;
 
+import com.example.project1.entities.OtpVerification;
 import com.example.project1.entities.User;
 
 public interface SendingEmailService {
@@ -8,4 +9,6 @@ public interface SendingEmailService {
     void sendVerificationEmail(User user);
 
     void sendResetPassword(User user, String password);
+
+    void sentOtpVerification(User user);
 }

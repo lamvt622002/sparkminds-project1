@@ -25,7 +25,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final JwtUtilily jwtUtilily;
 
-    private final SendingEmailService emailService;
+    private final SendingEmailService sendingEmailService;
 
     private final AuthenticationManager authenticationManager;
 
@@ -74,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
         this.passwordEncoder = passwordEncoder;
         this.authoritiesService = authoritiesService;
         this.jwtUtilily = jwtUtilily;
-        this.emailService = emailService;
+        this.sendingEmailService = emailService;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.userDetailsServiceSecurity = userDetailsServiceSecurity;
@@ -110,7 +109,9 @@ public class AuthServiceImpl implements AuthService {
 
         User userSaved = userService.saveUser(user);
 
-        emailService.sendVerificationEmail(userSaved);
+//        sendingEmailService.sendVerificationEmail(userSaved);
+        sendingEmailService.sentOtpVerification(userSaved);
+
     }
 
 
@@ -258,7 +259,7 @@ public class AuthServiceImpl implements AuthService {
         if(user.getStatus() != UserStatus.INACTIVE.getValue()){
             throw new BadRequestException("Your account was verified");
         }
-        emailService.sendVerificationEmail(user);
+        sendingEmailService.sendVerificationEmail(user);
     }
 
     @Override
@@ -278,7 +279,7 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        emailService.sendResetPassword(user, newPassword);
+        sendingEmailService.sendResetPassword(user, newPassword);
     }
 
     @Override

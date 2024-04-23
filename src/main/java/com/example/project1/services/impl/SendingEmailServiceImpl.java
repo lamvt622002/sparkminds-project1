@@ -1,8 +1,10 @@
 package com.example.project1.services.impl;
 
 import com.example.project1.entities.EmailVerification;
+import com.example.project1.entities.OtpVerification;
 import com.example.project1.entities.User;
 import com.example.project1.repository.EmailVerificationRepository;
+import com.example.project1.services.OtpVerificationService;
 import com.example.project1.services.SendingEmailService;
 import com.example.project1.services.EmailVerificationService;
 import com.example.project1.utitilies.JwtUtilily;
@@ -23,6 +25,8 @@ public class SendingEmailServiceImpl implements SendingEmailService {
     private final JwtUtilily jwtUtilily;
 
     private final EmailVerificationRepository emailVerificationRepository;
+
+    private final OtpVerificationService otpVerificationService;
 
     private final SimpleMailMessage simpleMailMessage;
 
@@ -68,6 +72,20 @@ public class SendingEmailServiceImpl implements SendingEmailService {
                        
                         lamvt - Sparkminds""", user.getFirstName() + user.getLastName(),password );
         sendMessage(user.getEmail(), "Sparkminds-Project1: Reset password", text);
+    }
+
+    @Override
+    public void sentOtpVerification(User user) {
+        OtpVerification otpVerification = otpVerificationService.createOtpVerification(user);
+        String text = String.format(
+                """
+                        Hi. %s\s
+                        Verify your email address\s
+                        You are recently signed up for your account\s
+                        Please enter the following verification code
+                        %s\s
+                        lamvt - Sparkminds""", otpVerification.getUser().getFirstName() + otpVerification.getUser().getLastName(), otpVerification.getOtp() );
+        sendMessage(user.getEmail(), "Sparkminds-Project1: Email verification", text);
     }
 
 

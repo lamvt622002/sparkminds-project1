@@ -32,11 +32,13 @@ public class MailSendingConfig {
     public SimpleMailMessage templateSimpleMessage() {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setText(
-                "Welcome to my project1 \n" +
-                "You are recently signed up for your account \n" +
-                "Please verify your email address and active your email by clicking this link \n" +
-                "\n%s\n"+
-                "lamvt - Sparkminds");
+                """
+                        Welcome to my project1\s
+                        You are recently signed up for your account\s
+                        Please verify your email address and active your email by clicking this link\s
+
+                        %s
+                        lamvt - Sparkminds""");
         return message;
     }
 }

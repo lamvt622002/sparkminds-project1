@@ -6,6 +6,7 @@ import com.example.project1.payload.response.RefreshTokenResponse;
 import com.example.project1.payload.response.ResponseMessage;
 import com.example.project1.payload.response.ResponseRepository;
 import com.example.project1.services.AuthService;
+import com.example.project1.services.OtpVerificationService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+
+    private final OtpVerificationService otpVerificationService;
 
     @PostMapping("/login")
     public ResponseEntity<ResponseRepository> login(@RequestBody LoginRequest loginRequest){
@@ -82,6 +85,11 @@ public class AuthController {
     @PostMapping("/change-password")
     public ResponseEntity<ResponseRepository> changePassword(@Valid @RequestBody ChangePasswordWithoutAuthRequest request){
         authService.changePassword(request);
+        return ResponseEntity.noContent().build();
+    }
+    @PostMapping("/otp-verification")
+    public ResponseEntity<ResponseRepository> verifyOtp(@Valid @RequestBody OtpRequest otpRequest){
+        otpVerificationService.enableUserByOtp(otpRequest);
         return ResponseEntity.noContent().build();
     }
 }

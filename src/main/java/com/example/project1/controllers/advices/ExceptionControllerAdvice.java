@@ -74,4 +74,10 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<ResponseRepository> sqlSyntaxErrorException(SQLSyntaxErrorException ex){
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseError<>(false, HttpStatus.INTERNAL_SERVER_ERROR.value(),ex.getMessage() ));
     }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ResponseRepository> unauthorizedAccessException(UnauthorizedAccessException ex){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseError<>(false, HttpStatus.UNAUTHORIZED.value(),ex.getMessage() ));
+    }
+
 }
