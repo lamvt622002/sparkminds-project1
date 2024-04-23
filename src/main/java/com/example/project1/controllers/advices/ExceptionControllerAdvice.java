@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,5 +68,10 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(PasswordChangeRequiredException.class)
     public ResponseEntity<ResponseRepository> passwordChangeRequiredException(PasswordChangeRequiredException ex){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseError<>(false, HttpStatus.UNAUTHORIZED.value(),ex.getMessage() ));
+    }
+
+    @ExceptionHandler(SQLSyntaxErrorException.class)
+    public ResponseEntity<ResponseRepository> sqlSyntaxErrorException(SQLSyntaxErrorException ex){
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseError<>(false, HttpStatus.INTERNAL_SERVER_ERROR.value(),ex.getMessage() ));
     }
 }

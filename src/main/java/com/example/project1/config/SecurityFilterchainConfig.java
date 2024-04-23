@@ -2,6 +2,7 @@ package com.example.project1.config;
 
 import com.example.project1.security.AuthCheckUserEnableFilter;
 import com.example.project1.security.AuthJwtRequestFilter;
+import com.example.project1.security.LogoutHandlerSecurity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,7 @@ public class SecurityFilterchainConfig {
     private final AuthenticationProvider authenticationProvider;
     private final AuthJwtRequestFilter authJwtRequestFilter;
     private final AuthCheckUserEnableFilter authCheckUserEnableFilter;
+    private final LogoutHandlerSecurity logoutHandlerSecurity;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -33,6 +35,7 @@ public class SecurityFilterchainConfig {
         httpSecurity.addFilterAfter(authCheckUserEnableFilter, AuthJwtRequestFilter.class);
         httpSecurity.authenticationProvider(authenticationProvider);
         httpSecurity.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        httpSecurity.logout(c -> c.addLogoutHandler(logoutHandlerSecurity).logoutUrl("/api/auth/logout").permitAll());
         httpSecurity.authorizeHttpRequests(c -> c.requestMatchers(
                 "/api/auth/**",
                 "/swagger-ui/**",

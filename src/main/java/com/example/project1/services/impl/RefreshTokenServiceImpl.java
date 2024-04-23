@@ -4,6 +4,7 @@ import com.example.project1.entities.RefreshToken;
 import com.example.project1.entities.User;
 import com.example.project1.exception.DataNotFoundExeption;
 import com.example.project1.exception.VerifyException;
+import com.example.project1.payload.response.JWTPayLoad;
 import com.example.project1.repository.RefreshTokenRepository;
 import com.example.project1.repository.UserRepository;
 import com.example.project1.services.RefreshTokenService;
@@ -32,16 +33,17 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
-    public RefreshToken createRefreshToken(Long userId) {
+    public RefreshToken createRefreshToken(JWTPayLoad jwtPayLoad) {
         RefreshToken refreshToken = new RefreshToken();
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        User user = userRepository.findById(jwtPayLoad.getUserID()).orElseThrow(() -> new DataNotFoundExeption("User not found"));
 
-        String token = jwtUtilily.generateTokenForEmail(user.getEmail(), 60);
+        String token = jwtUtilily.generateToken(jwtPayLoad, 60);
 
         refreshToken.setUser(user);
         refreshToken.setExpireTime(LocalDateTime.now(ZoneId.systemDefault()).plusMinutes(60));
         refreshToken.setToken(token);
+
 
         return refreshTokenRepository.save(refreshToken);
     }

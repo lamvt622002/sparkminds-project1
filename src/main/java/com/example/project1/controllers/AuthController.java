@@ -9,7 +9,9 @@ import com.example.project1.services.AuthService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +24,34 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ResponseRepository> login(@RequestBody LoginRequest loginRequest){
         LoginResponse loginResponse = authService.login(loginRequest);
+        ResponseCookie accessToken = ResponseCookie.from("access_token", loginResponse.getAccessToken())
+                .httpOnly(false)
+                .secure(true)
+                .path("/")
+                .maxAge(30 * 60)
+                .domain("localhost")
+                .build();
+        ResponseCookie refreshToken = ResponseCookie.from("refresh_token", loginResponse.getRefreshToken())
+                .httpOnly(false)
+                .secure(true)
+                .path("/")
+                .maxAge(60 * 60)
+                .domain("localhost")
+                .build();
+        ResponseCookie session = ResponseCookie.from("session", loginResponse.getSession())
+                .httpOnly(false)
+                .secure(true)
+                .path("/")
+                .maxAge(30 * 60)
+                .domain("localhost")
+                .build();
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage<>(true, HttpStatus.OK.value(),loginResponse));
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HttpHeaders.SET_COOKIE, accessToken.toString());
+        responseHeaders.add(HttpHeaders.SET_COOKIE, refreshToken.toString());
+        responseHeaders.add(HttpHeaders.SET_COOKIE, session.toString());
+
+        return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(new ResponseMessage<>(true, HttpStatus.OK.value(),loginResponse));
     }
 
     @PostMapping("/register")

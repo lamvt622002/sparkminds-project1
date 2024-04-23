@@ -1,16 +1,18 @@
 package com.example.project1.controllers;
 
-import com.example.project1.entities.Authorities;
 import com.example.project1.payload.response.ResponseMessage;
 import com.example.project1.repository.AuthoritiesRepository;
 import com.example.project1.payload.response.ResponseRepository;
 import com.example.project1.services.impl.TestService;
 import com.example.project1.utitilies.JwtUtilily;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 public class TestController {
@@ -27,9 +29,22 @@ public class TestController {
 
     @GetMapping("/test")
     public ResponseEntity<ResponseRepository> test(){
-        System.out.println("ddd");
+            return null;
+    }
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage<>(true, HttpStatus.OK.value(), "he"));
+    @GetMapping("/setCookie")
+    public ResponseEntity<?> setCookie(){
+        ResponseCookie resCookie = ResponseCookie.from("user-id", "c2FtLnNtaXRoQGV4YW1wbGUuY29t")
+                .httpOnly(false)
+                .secure(true)
+                .path("/")
+                .maxAge(1 * 24 * 60 * 60)
+                .domain("localhost")
+                .build();
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HttpHeaders.SET_COOKIE, resCookie.toString());
+
+        return ResponseEntity.ok().headers(responseHeaders).build();
     }
 
     @GetMapping("/test-lombok")

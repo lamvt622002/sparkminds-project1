@@ -1,5 +1,6 @@
 package com.example.project1.utitilies;
 
+import com.example.project1.payload.response.JWTPayLoad;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -37,7 +38,6 @@ public class JwtUtilily {
     }
 
     public String extractUserName(String token) {
-        System.out.println("extract here");
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -46,8 +46,6 @@ public class JwtUtilily {
     }
 
     public Boolean isTokenExpired(String token) {
-        System.out.println("Token expired: "+ extractExpiration(token));
-        System.out.println("Now: "+ new Date());
         return extractExpiration(token).before(new Date());
     }
 
@@ -60,14 +58,20 @@ public class JwtUtilily {
         LocalDateTime localDateTime= LocalDateTime.now();
         localDateTime = localDateTime.plusMinutes(minutes);
         Date expireTime = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(expireTime)
                 .signWith(ALGORITHM, SECRET_KEY).compact();
     }
 
-    public String generateToken(UserDetails userDetails, int minutes) {
+    public String generateToken(JWTPayLoad jwtPayLoad, int minutes) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername(), minutes);
+        claims.put("userId", jwtPayLoad.getUserID());
+        claims.put("email", jwtPayLoad.getEmail());
+        claims.put("session", jwtPayLoad.getSession());
+        return createToken(claims, jwtPayLoad.getEmail(), minutes);
     }
 
     public String generateTokenForEmail(String email, int minutes) {
