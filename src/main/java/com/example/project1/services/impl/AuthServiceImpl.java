@@ -111,7 +111,6 @@ public class AuthServiceImpl implements AuthService {
 
 //        sendingEmailService.sendVerificationEmail(userSaved);
         sendingEmailService.sentOtpVerification(userSaved);
-
     }
 
 
@@ -260,6 +259,16 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Your account was verified");
         }
         sendingEmailService.sendVerificationEmail(user);
+    }
+
+    @Override
+    public void resentOtpVerification(EmailRequest request) {
+        User user = userRepository.findUserByEmail(request.getEmail()).orElseThrow(() -> new DataNotFoundExeption("Email not found"));
+
+        if(user.getStatus() != UserStatus.INACTIVE.getValue()){
+            throw new BadRequestException("Your account was verified");
+        }
+        sendingEmailService.sentOtpVerification(user);
     }
 
     @Override

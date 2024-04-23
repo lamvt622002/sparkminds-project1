@@ -15,6 +15,8 @@ public interface AuthService {
 
     void resentVerifyRegister(EmailRequest request);
 
+    void resentOtpVerification(EmailRequest request);
+
     void resetPassword(EmailRequest request);
 
     void changePassword(ChangePasswordWithoutAuthRequest changePasswordWithoutAuthRequest);

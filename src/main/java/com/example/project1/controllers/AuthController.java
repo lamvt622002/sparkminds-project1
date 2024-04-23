@@ -92,4 +92,12 @@ public class AuthController {
         otpVerificationService.enableUserByOtp(otpRequest);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/resent-otp-verification")
+    public ResponseEntity<ResponseRepository> resentVerifyOtp(@Valid  @RequestBody EmailRequest emailRequest){
+        authService.resentOtpVerification(emailRequest);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }
