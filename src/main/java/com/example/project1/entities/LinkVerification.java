@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @RequiredArgsConstructor
-@Table(name = "emailVerification")
-public class EmailVerification extends BaseEntity{
+@Table(name = "link_verification")
+public class LinkVerification extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter

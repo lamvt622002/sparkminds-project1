@@ -12,8 +12,6 @@ public interface UserService {
 
     User saveUser(User user);
 
-    void enableUser(User user);
-
     void changePassword(ChangePasswordRequest changePasswordRequest);
 
     void changeEmail(ChangeEmailRequest changeEmailRequest);

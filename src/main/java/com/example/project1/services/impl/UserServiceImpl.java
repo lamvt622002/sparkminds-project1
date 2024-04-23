@@ -46,11 +46,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void enableUser(User user) {
-        user.setStatus(UserStatus.ACTIVE.getValue());
-        userRepository.save(user);
-    }
-    @Override
     @Transactional
     public void changePassword(ChangePasswordRequest changePasswordRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

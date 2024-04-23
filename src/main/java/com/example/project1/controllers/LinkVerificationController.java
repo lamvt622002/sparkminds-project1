@@ -1,6 +1,6 @@
 package com.example.project1.controllers;
 
-import com.example.project1.services.EmailVerificationService;
+import com.example.project1.services.LinkVerificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class EmailVerificationController {
-   private final EmailVerificationService emailVerificationService;
+public class LinkVerificationController {
+   private final LinkVerificationService linkVerificationService;
 
     @GetMapping("/verify-register/{token}")
     public String verifyEmail(@PathVariable String token, Model theModel){
-      return emailVerificationService.verifyEmail(token, theModel);
+      return linkVerificationService.verifyLink(token, theModel);
     }
 }

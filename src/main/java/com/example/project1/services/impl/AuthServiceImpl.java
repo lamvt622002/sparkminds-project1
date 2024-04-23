@@ -109,8 +109,8 @@ public class AuthServiceImpl implements AuthService {
 
         User userSaved = userService.saveUser(user);
 
-//        sendingEmailService.sendVerificationEmail(userSaved);
-        sendingEmailService.sentOtpVerification(userSaved);
+        sendingEmailService.sendVerificationEmail(userSaved);
+//        sendingEmailService.sentOtpVerification(userSaved);
     }
 
 

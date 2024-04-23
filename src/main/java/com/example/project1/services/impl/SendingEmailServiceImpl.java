@@ -1,12 +1,12 @@
 package com.example.project1.services.impl;
 
-import com.example.project1.entities.EmailVerification;
+import com.example.project1.entities.LinkVerification;
 import com.example.project1.entities.OtpVerification;
 import com.example.project1.entities.User;
-import com.example.project1.repository.EmailVerificationRepository;
+import com.example.project1.repository.LinkVerificationRepository;
+import com.example.project1.services.LinkVerificationService;
 import com.example.project1.services.OtpVerificationService;
 import com.example.project1.services.SendingEmailService;
-import com.example.project1.services.EmailVerificationService;
 import com.example.project1.utitilies.JwtUtilily;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,9 +22,7 @@ import java.time.ZoneId;
 public class SendingEmailServiceImpl implements SendingEmailService {
     private final JavaMailSender emailSender;
 
-    private final JwtUtilily jwtUtilily;
-
-    private final EmailVerificationRepository emailVerificationRepository;
+    private final LinkVerificationService linkVerificationService;
 
     private final OtpVerificationService otpVerificationService;
 
@@ -45,15 +43,10 @@ public class SendingEmailServiceImpl implements SendingEmailService {
 
     @Override
     public void sendVerificationEmail(User user) {
-        String token = jwtUtilily.generateTokenForEmail(user.getEmail(), 15);
 
-        LocalDateTime expiredTime = LocalDateTime.now(ZoneId.systemDefault()).plusHours(2);
+        LinkVerification linkVerification = linkVerificationService.createLinkVerification(user);
 
-        EmailVerification emailVerification = new EmailVerification(user,user.getEmail(), token, 0, expiredTime);
-
-        emailVerificationRepository.save(emailVerification);
-
-        String text = String.format(simpleMailMessage.getText(), apiVerifyEmail + token);
+        String text = String.format(simpleMailMessage.getText(), apiVerifyEmail + linkVerification.getToken());
 
         sendMessage(user.getEmail(), "Please verify your email for your account", text);
     }
