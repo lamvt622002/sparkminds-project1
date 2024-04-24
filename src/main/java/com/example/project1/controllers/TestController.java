@@ -3,8 +3,10 @@ package com.example.project1.controllers;
 import com.example.project1.payload.response.ResponseMessage;
 import com.example.project1.repository.AuthoritiesRepository;
 import com.example.project1.payload.response.ResponseRepository;
+import com.example.project1.repository.UserRepository;
 import com.example.project1.services.impl.TestService;
 import com.example.project1.utitilies.JwtUtilily;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -15,20 +17,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 public class TestController {
     private final TestService testService;
     private final JwtUtilily jwtUtilily;
 
     private final AuthoritiesRepository authoritiesRepository;
 
-    public TestController(TestService testService, JwtUtilily jwtUtilily, AuthoritiesRepository authoritiesRepository) {
-        this.testService = testService;
-        this.jwtUtilily = jwtUtilily;
-        this.authoritiesRepository = authoritiesRepository;
-    }
+    private final UserRepository userRepository;
 
     @GetMapping("/test")
     public ResponseEntity<ResponseRepository> test(){
+        System.out.println(userRepository.findById(1L).get().getLinkVerifications());
             return null;
     }
 

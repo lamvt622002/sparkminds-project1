@@ -4,6 +4,7 @@ import com.example.project1.security.AuthCheckUserEnableFilter;
 import com.example.project1.security.AuthJwtRequestFilter;
 import com.example.project1.security.LogoutHandlerSecurity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -13,19 +14,29 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
-@RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityFilterchainConfig {
     private final AuthenticationProvider authenticationProvider;
     private final AuthJwtRequestFilter authJwtRequestFilter;
     private final AuthCheckUserEnableFilter authCheckUserEnableFilter;
     private final LogoutHandlerSecurity logoutHandlerSecurity;
+
+    private final AuthenticationEntryPoint authenticationEntryPoint;
+
+    public SecurityFilterchainConfig(AuthenticationProvider authenticationProvider, AuthJwtRequestFilter authJwtRequestFilter, AuthCheckUserEnableFilter authCheckUserEnableFilter, LogoutHandlerSecurity logoutHandlerSecurity,@Qualifier("restAuthenticationEntryPoint") AuthenticationEntryPoint authenticationEntryPoint) {
+        this.authenticationProvider = authenticationProvider;
+        this.authJwtRequestFilter = authJwtRequestFilter;
+        this.authCheckUserEnableFilter = authCheckUserEnableFilter;
+        this.logoutHandlerSecurity = logoutHandlerSecurity;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -36,6 +47,7 @@ public class SecurityFilterchainConfig {
         httpSecurity.authenticationProvider(authenticationProvider);
         httpSecurity.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.logout(c -> c.addLogoutHandler(logoutHandlerSecurity).logoutUrl("/api/auth/logout").permitAll());
+        httpSecurity.exceptionHandling(c -> c.authenticationEntryPoint(authenticationEntryPoint));
         httpSecurity.authorizeHttpRequests(c -> c.requestMatchers(
                 "/api/auth/**",
                 "/swagger-ui/**",
