@@ -11,4 +11,6 @@ public interface UserSessionService {
     UserSession createUserSession(User user);
 
     void disableSession(UUID session);
+
+    void clearAllUserSession(User user);
 }

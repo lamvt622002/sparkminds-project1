@@ -1,13 +1,11 @@
 package com.example.project1.entities;
 
-import com.example.project1.enums.Role;
-import com.example.project1.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Entity
@@ -49,7 +47,13 @@ public class User extends BaseEntity{
     @NonNull
     @ManyToOne
     @JoinColumn(name = "role")
+    @ToString.Exclude
     private Authorities role;
+
+    @OneToMany(mappedBy = "user")
+    @NonNull
+    @ToString.Exclude
+    private List<LinkVerification> linkVerifications;
 
     @NonNull
     private Integer status;

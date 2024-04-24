@@ -35,6 +35,8 @@ public class UserServiceImpl implements UserService {
 
     private final OtpChangePhoneRepository otpChangePhoneRepository;
 
+    private final UserSessionService userSessionService;
+
     @Override
     @Transactional(readOnly = true)
     public Optional<User> findUserByEmail(String email) {
@@ -76,6 +78,8 @@ public class UserServiceImpl implements UserService {
         user.setPassword(encodeNewPassword);
 
         userRepository.save(user);
+
+        userSessionService.clearAllUserSession(user);
     }
 
     @Override
@@ -97,13 +101,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("New email must be different");
         }
 
-        user.setEmail(changeEmailRequest.getNewEmail());
-
-        user.setStatus(UserStatus.INACTIVE.getValue());
-
-        userRepository.save(user);
-
-        sendingEmailService.sendVerificationEmail(user);
+        sendingEmailService.sendVerificationChangeEmail(user, changeEmailRequest.getNewEmail());
     }
 
     @Override

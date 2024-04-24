@@ -2,6 +2,7 @@ package com.example.project1.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.event.spi.ReplicateEvent;
 
 import java.time.LocalDateTime;
 
@@ -18,8 +19,9 @@ public class LinkVerification extends BaseEntity{
     private Long id;
 
     @NonNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 
     @NonNull

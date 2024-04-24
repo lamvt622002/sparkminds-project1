@@ -8,6 +8,8 @@ public interface SendingEmailService {
 
     void sendVerificationEmail(User user);
 
+    void sendVerificationChangeEmail(User user, String newEmail);
+
     void sendResetPassword(User user, String password);
 
     void sentOtpVerification(User user);

@@ -31,6 +31,9 @@ public class SendingEmailServiceImpl implements SendingEmailService {
     @Value("${application.apiVerifyEmail}")
     private String apiVerifyEmail;
 
+    @Value("${application.apiChangeEmail}")
+    private String apiChangeEmail;
+
     @Override
     public void sendMessage(String to, String subject, String text) {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
@@ -49,6 +52,25 @@ public class SendingEmailServiceImpl implements SendingEmailService {
         String text = String.format(simpleMailMessage.getText(), apiVerifyEmail + linkVerification.getToken());
 
         sendMessage(user.getEmail(), "Please verify your email for your account", text);
+    }
+
+    @Override
+    public void sendVerificationChangeEmail(User user, String newEmail) {
+        LinkVerification linkVerification = linkVerificationService.createLinkChangeEmailVerification(user, newEmail);
+
+        String text = String.format(
+                """
+                        Hi. %s\s
+                        
+                        You are recently requested to change your email\s
+                        
+                        Please click this link to change your email\s
+
+                        %s\s
+                       
+                        lamvt - Sparkminds""", user.getFirstName() + user.getLastName(),apiChangeEmail + linkVerification.getToken());
+
+        sendMessage(newEmail, "Change email verification", text);
     }
 
     @Override

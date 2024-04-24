@@ -42,4 +42,9 @@ public class UserSessionServiceImpl implements UserSessionService {
 
         userSessionRepository.save(userSession);
     }
+
+    @Override
+    public void clearAllUserSession(User user) {
+        userSessionRepository.deleteAllByUserId(user.getId());
+    }
 }
