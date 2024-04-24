@@ -8,7 +8,6 @@ import com.example.project1.payload.response.ResponseRepository;
 import com.example.project1.services.AuthService;
 import com.example.project1.services.OtpVerificationService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -70,9 +69,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage<>(true, HttpStatus.OK.value(), new RefreshTokenResponse(newAccessToken, request.getRefreshToken())));
     }
 
-    @PostMapping("/resent-verify-register")
-    public ResponseEntity<Void> resentVerifyRegister(@Valid @RequestBody EmailRequest request){
-        authService.resentVerifyRegister(request);
+    @PostMapping("/resent-verify-link")
+    public ResponseEntity<Void> resentVerifyLink(@Valid @RequestBody EmailRequest request){
+        authService.resentVerifyLink(request);
         return ResponseEntity.noContent().build();
     }
 
@@ -96,8 +95,6 @@ public class AuthController {
     @PostMapping("/resent-otp-verification")
     public ResponseEntity<ResponseRepository> resentVerifyOtp(@Valid  @RequestBody EmailRequest emailRequest){
         authService.resentOtpVerification(emailRequest);
-
         return ResponseEntity.noContent().build();
     }
-
 }

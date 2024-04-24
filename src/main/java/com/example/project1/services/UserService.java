@@ -1,9 +1,7 @@
 package com.example.project1.services;
 
 import com.example.project1.entities.User;
-import com.example.project1.payload.request.ChangeEmailRequest;
-import com.example.project1.payload.request.ChangePasswordRequest;
-import com.example.project1.payload.request.EmailRequest;
+import com.example.project1.payload.request.*;
 
 import java.util.Optional;
 
@@ -15,4 +13,8 @@ public interface UserService {
     void changePassword(ChangePasswordRequest changePasswordRequest);
 
     void changeEmail(ChangeEmailRequest changeEmailRequest);
+
+    void changePhone(ChangePhoneRequest changePhoneRequest);
+
+    void verifyChangePhone(OtpChangePhoneRequest verifyChangePhoneRequest);
 }

@@ -252,7 +252,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void resentVerifyRegister(EmailRequest request) {
+    public void resentVerifyLink(EmailRequest request) {
         User user = userRepository.findUserByEmail(request.getEmail()).orElseThrow(() -> new DataNotFoundExeption("Email not found"));
 
         if(user.getStatus() != UserStatus.INACTIVE.getValue()){

@@ -13,7 +13,7 @@ public interface AuthService {
 
     Authentication authenticate(Authentication authentication);
 
-    void resentVerifyRegister(EmailRequest request);
+    void resentVerifyLink(EmailRequest request);
 
     void resentOtpVerification(EmailRequest request);
 

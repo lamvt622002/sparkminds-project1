@@ -1,16 +1,15 @@
 package com.example.project1.services.impl;
 
+import com.example.project1.entities.OtpChangePhone;
 import com.example.project1.entities.User;
 import com.example.project1.enums.UserStatus;
 import com.example.project1.exception.BadRequestException;
 import com.example.project1.exception.DataNotFoundExeption;
 import com.example.project1.exception.DatabaseAccessException;
-import com.example.project1.payload.request.ChangeEmailRequest;
-import com.example.project1.payload.request.ChangePasswordRequest;
-import com.example.project1.payload.request.EmailRequest;
+import com.example.project1.payload.request.*;
+import com.example.project1.repository.OtpChangePhoneRepository;
 import com.example.project1.repository.UserRepository;
-import com.example.project1.services.SendingEmailService;
-import com.example.project1.services.UserService;
+import com.example.project1.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +26,14 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final SendingEmailService sendingEmailService;
+
+    private final SMSService smsService;
+
+    private final OtpVerificationService otpVerificationService;
+
+    private final OtpChangePhoneService phoneService;
+
+    private final OtpChangePhoneRepository otpChangePhoneRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -72,6 +79,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void changeEmail(ChangeEmailRequest changeEmailRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -85,6 +93,10 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Email already exists");
         }
 
+        if(user.getEmail().equals(changeEmailRequest.getNewEmail())){
+            throw new BadRequestException("New email must be different");
+        }
+
         user.setEmail(changeEmailRequest.getNewEmail());
 
         user.setStatus(UserStatus.INACTIVE.getValue());
@@ -92,8 +104,50 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         sendingEmailService.sendVerificationEmail(user);
+    }
 
+    @Override
+    public void changePhone(ChangePhoneRequest changePhoneRequest) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
+        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundExeption("User not found"));
 
+        if(!passwordEncoder.matches(changePhoneRequest.getPassword(),user.getPassword())){
+            throw new BadRequestException("Invalid password");
+        }
+
+        if(userRepository.existsByPhoneNumber(changePhoneRequest.getPhoneNumber())){
+            throw new BadRequestException("Phone number already exists");
+        }
+
+        if(user.getPhoneNumber().equals(changePhoneRequest.getPhoneNumber())){
+            throw new BadRequestException("Phone number must be different");
+        }
+
+        OtpChangePhone phone = phoneService.createOtpChangePhone(user, changePhoneRequest.getPhoneNumber());
+
+        String body = String.format(
+        """
+        Your verification code is:%s\s
+        """, phone.getOtp());
+
+        smsService.sendMessage(phone.getNewPhoneNumber(),body);
+
+    }
+
+    @Override
+    @Transactional
+    public void verifyChangePhone(OtpChangePhoneRequest verifyChangePhoneRequest) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+
+        OtpChangePhone otpChangePhone = otpChangePhoneRepository.findByUserIdAndOtp(user.getId(), verifyChangePhoneRequest.getOtp()).orElseThrow(() -> new DataNotFoundExeption("Invalid OTP"));
+
+         phoneService.verifyOtpChangePhone(otpChangePhone);
+
+         phoneService.disableOtpChangePhone(otpChangePhone);
+
+         phoneService.updateUserByOtpChangePhone(otpChangePhone);
     }
 }

@@ -3,6 +3,7 @@ package com.example.project1.controllers.advices;
 import com.example.project1.exception.*;
 import com.example.project1.payload.response.ResponseError;
 import com.example.project1.payload.response.ResponseRepository;
+import com.twilio.exception.ApiException;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,6 +79,10 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(UnauthorizedAccessException.class)
     public ResponseEntity<ResponseRepository> unauthorizedAccessException(UnauthorizedAccessException ex){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseError<>(false, HttpStatus.UNAUTHORIZED.value(),ex.getMessage() ));
+    }
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ResponseRepository> apiException(ApiException ex){
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseError<>(false, HttpStatus.INTERNAL_SERVER_ERROR.value(),ex.getMessage() ));
     }
 
 }
