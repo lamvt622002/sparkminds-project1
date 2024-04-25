@@ -34,5 +34,5 @@ export const changePassword = (email:string, oldPassword:string, newPassword:str
 }
 
 export const test = () => {
-  return APIClient.get(baseApi + "test");
+  return APIClient.get(baseApi + "setCookie");
 }

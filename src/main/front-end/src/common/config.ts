@@ -7,6 +7,12 @@ export const CONFIG = {
             REFRESH: 'api/auth/refresh',
             FORGOT_PASSWORD: 'api/auth/forgot-password',
             CHANGE_PASSWORD: 'api/auth/change-password'
+        },
+        USER:{
+            CHANGE_EMAIL:'api/user/change-email',
+            CHANGE_PASSWORD:'api/user/change-password',
+            CHANGE_PHONE:'api/user/change-phone',
+            CHANGE_PHONE_VERIFY:'api/user/change-phone-verify'
         }
     },
     PAGE_URLS: {
@@ -15,7 +21,9 @@ export const CONFIG = {
         REGISTER: '/register',
         FORGOT_PASSWORD: '/forgot-password',
         CHANGE_PASSWORD: '/change-password',
-        ACCOUNT_SETTING: '/account-setting'
+        ACCOUNT_SETTING: '/account-setting',
+        VERIFY_EMAIL:'/verify-email',
+        HOME:'/home'
     },
     IMAGES:{
         EMAIL_VERIFICATION: '/images/email_verifycation_image.jpg',

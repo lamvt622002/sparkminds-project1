@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
 import { toast } from 'react-toastify'
 import userStore from 'stores/user'
+import Cookies from 'js-cookie';
 
 const RequestMethod = {
   Get: 'GET',
@@ -73,37 +74,38 @@ export default class APIClient {
 
   static async request(requestConfig: AxiosRequestConfig, config?: AxiosRequestConfig) {
     try {
-      if(userStore.getState()?.user?.refreshToken && userStore.getState()?.user?.accessToken){
-        const decodedRefreshToken = jwtDecode(userStore.getState()?.user?.refreshToken  as string);
-        const decodeAcceassToken = jwtDecode(userStore.getState()?.user?.accessToken as string)
-        if (userStore.getState()?.user) {
-            const isExpiredRefreshToken = dayjs.unix(decodedRefreshToken.exp as number).diff(dayjs()) < 1
-            if (isExpiredRefreshToken){
+       if(userStore.getState()?.user && userStore.getState()?.user){
+        if(!Cookies.get('refresh_token') && !Cookies.get('access_token')){
+          userStore.getState().logout()
+        }
+        if(Cookies.get('refresh_token') && Cookies.get('access_token')){
+          const decodedRefreshToken = jwtDecode(Cookies.get('refresh_token') as string);
+          const decodeAcceassToken = jwtDecode(Cookies.get('access_token') as string)
+          const isExpiredRefreshToken = dayjs.unix(decodedRefreshToken.exp as number).diff(dayjs()) < 1
+          if (isExpiredRefreshToken){
+            refreshTokenRequest = refreshTokenRequest ? refreshTokenRequest : userStore.getState()?.refreshToken()
+            await refreshTokenRequest
+            refreshTokenRequest = null
+            userStore.getState().logout()
+          } 
+            const isExpiredAccessToken = dayjs.unix(decodeAcceassToken.exp as number).diff(dayjs()) < 1
+            if (isExpiredAccessToken) {
               refreshTokenRequest = refreshTokenRequest ? refreshTokenRequest : userStore.getState()?.refreshToken()
               await refreshTokenRequest
               refreshTokenRequest = null
-              userStore.getState().logout()
-              
-            } 
-            if (userStore.getState()?.user) {
-              const isExpiredAccessToken = dayjs.unix(decodeAcceassToken.exp as number).diff(dayjs()) < 1
-              if (isExpiredAccessToken) {
-                refreshTokenRequest = refreshTokenRequest ? refreshTokenRequest : userStore.getState()?.refreshToken()
-                await refreshTokenRequest
-                refreshTokenRequest = null
-              }
             }
-          }
-      }
+        }
+       }
      
       const axiosRequestConfig = {
         ...config,
         method: requestConfig.method,
         url: requestConfig.url,
+        withCredentials:true,
         headers: {
           'Content-Type': config?.headers?.['Content-Type'] ? config.headers['Content-Type'] : 'application/json',
-          Authorization: userStore.getState()?.user?.accessToken
-            ? `${userStore.getState()?.user?.accessToken}`
+          Authorization: Cookies.get('refresh_token')
+            ? `${Cookies.get('refresh_token')}`
             : '',
           ...config?.headers,
         },
@@ -118,9 +120,12 @@ export default class APIClient {
       if ((error as AxiosError).response) {
         if (
           (error as AxiosError).response?.status === 401 &&
-          ((error as AxiosError).response?.data as { error_code: number })?.error_code === 40101
+          ((error as AxiosError).response?.data as { status: number })?.status === 40101
         ) {
-          toast.info('Your account has been login from another device')
+          toast.info('Invalid session')
+          Cookies.remove("access_token")
+          Cookies.remove("refresh_token")
+          Cookies.remove("session")
           userStore.getState().logout()
         }
 
