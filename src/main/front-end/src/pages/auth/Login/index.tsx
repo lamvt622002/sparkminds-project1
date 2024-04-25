@@ -4,11 +4,12 @@ import { Box, Grid, TextField, Typography } from "@mui/material";
 import {Controller} from 'react-hook-form';
 
 import styles from 'pages/auth/Auth.module.scss';
+import GoogleAuthModel from "components/models/GoogleAuthModel";
 
 
 
 const Login = () => {
-    const {disable, control, handleLogin, handleSubmit} = useLogin();
+    const {openModal, email, setOpenModal, handleClose ,qrCode,disable, control, handleLogin, handleSubmit} = useLogin();
     return(
         <Box className={styles.layoutAuth}>
             <Box className={styles.mainLayout}>
@@ -75,6 +76,12 @@ const Login = () => {
                         </Grid>
                     </Grid>
                 </form>
+                <GoogleAuthModel
+                    open={openModal}
+                    qrCode={qrCode}
+                    email={email}
+                    handleClose={handleClose}
+                />
             </Box>
         </Box>
     )

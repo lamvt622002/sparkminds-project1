@@ -8,6 +8,7 @@ import com.example.project1.enums.Role;
 import com.example.project1.enums.SessionStatus;
 import com.example.project1.enums.UserStatus;
 import com.example.project1.exception.*;
+import com.example.project1.payload.dto.JwtResponseDto;
 import com.example.project1.payload.request.*;
 import com.example.project1.payload.response.JWTPayLoad;
 import com.example.project1.payload.response.LoginResponse;
@@ -19,8 +20,12 @@ import com.example.project1.security.UserDetailsServiceSecurity;
 import com.example.project1.services.*;
 import com.example.project1.utitilies.JwtUtilily;
 import com.example.project1.utitilies.PasswordGenerator;
+import com.google.zxing.WriterException;
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,10 +36,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
@@ -68,7 +73,9 @@ public class AuthServiceImpl implements AuthService {
     
     private final UserSessionRepository userSessionRepository;
 
-    public AuthServiceImpl(UserRepository userRepository, UserService userService, PasswordEncoder passwordEncoder, AuthoritiesService authoritiesService, JwtUtilily jwtUtilily, SendingEmailService emailService, @Lazy AuthenticationManager authenticationManager, UserDetailsService userDetailsService, UserDetailsServiceSecurity userDetailsServiceSecurity, RefreshTokenService refreshTokenService, RefreshTokenRepository refreshTokenRepository, PasswordGenerator passwordGenerator, UserSessionService userSessionService, UserSessionRepository userSessionRepository) {
+    private final GoogleAuthenticatorServiceImpl googleAuthenticatorService;
+
+    public AuthServiceImpl(UserRepository userRepository, UserService userService, PasswordEncoder passwordEncoder, AuthoritiesService authoritiesService, JwtUtilily jwtUtilily, SendingEmailService emailService, @Lazy AuthenticationManager authenticationManager, UserDetailsService userDetailsService, UserDetailsServiceSecurity userDetailsServiceSecurity, RefreshTokenService refreshTokenService, RefreshTokenRepository refreshTokenRepository, PasswordGenerator passwordGenerator, UserSessionService userSessionService, UserSessionRepository userSessionRepository, GoogleAuthenticatorServiceImpl googleAuthenticatorService) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -83,6 +90,7 @@ public class AuthServiceImpl implements AuthService {
         this.passwordGenerator = passwordGenerator;
         this.userSessionService = userSessionService;
         this.userSessionRepository = userSessionRepository;
+        this.googleAuthenticatorService = googleAuthenticatorService;
     }
 
     @Override
@@ -120,12 +128,45 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public LoginResponse login(LoginRequest loginRequest) {
+    public String login(LoginRequest loginRequest, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
 
         User user = userRepository.findUserByEmail(userDetails.getUsername()).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+
+        String qrCode;
+
+        try {
+            qrCode = googleAuthenticatorService.generateQR(loginRequest.getEmail(), response);
+        } catch (WriterException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return qrCode;
+    }
+
+    @Override
+    public LoginResponse twoFactorAuthenticate(GoogleValidateCodeRequest googleValidateCodeRequest) {
+        if(!googleAuthenticatorService.isInvalidCode(googleValidateCodeRequest)){
+            throw new BadRequestException("Invalid code");
+        }
+
+        User user = userRepository.findUserByEmail(googleValidateCodeRequest.getUserName()).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+
+        return LoginResponse.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .birthDay(user.getBirthDay())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().getAuthority())
+                .status(UserStatus.fromValue(user.getStatus()))
+                .build();
+    }
+
+    @Override
+    public HttpHeaders responseCookies(String email) {
+        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundExeption("User not found"));
 
         final UserSession userSession = userSessionService.createUserSession(user);
 
@@ -135,20 +176,33 @@ public class AuthServiceImpl implements AuthService {
 
         final RefreshToken refreshToken = refreshTokenService.createRefreshToken(jwtPayLoad);
 
-        LoginResponse loginResponse = LoginResponse.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .birthDay(user.getBirthDay())
-                .phoneNumber(user.getPhoneNumber())
-                .role(user.getRole().getAuthority())
-                .status(UserStatus.fromValue(user.getStatus()))
-                .session(userSession.getSessionId().toString())
-                .accessToken(accessToken)
-                .refreshToken(refreshToken.getToken())
+        ResponseCookie access_Token = ResponseCookie.from("access_token", accessToken)
+                .httpOnly(false)
+                .secure(true)
+                .path("/")
+                .maxAge(2* 24 * 60 * 60)
+                .domain("localhost")
+                .build();
+        ResponseCookie refresh_Token = ResponseCookie.from("refresh_token", refreshToken.getToken())
+                .httpOnly(false)
+                .secure(true)
+                .path("/")
+                .maxAge(2* 24 * 60 * 60)
+                .domain("localhost")
+                .build();
+        ResponseCookie session = ResponseCookie.from("session", userSession.getSessionId().toString())
+                .httpOnly(false)
+                .secure(true)
+                .path("/")
+                .maxAge(2* 24 * 60 * 60)
+                .domain("localhost")
                 .build();
 
-        return loginResponse;
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HttpHeaders.SET_COOKIE, access_Token.toString());
+        responseHeaders.add(HttpHeaders.SET_COOKIE, refresh_Token.toString());
+        responseHeaders.add(HttpHeaders.SET_COOKIE, session.toString());
+        return responseHeaders;
     }
 
     @Override

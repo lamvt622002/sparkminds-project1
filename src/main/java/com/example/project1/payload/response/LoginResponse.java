@@ -1,5 +1,7 @@
 package com.example.project1.payload.response;
 
+import com.example.project1.payload.dto.JwtResponseDto;
+import jakarta.annotation.Nullable;
 import lombok.*;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +26,4 @@ public class LoginResponse {
     private String role;
 
     private String status;
-
-    private String session;
-
-    private String accessToken;
-
-    private String refreshToken;
 }

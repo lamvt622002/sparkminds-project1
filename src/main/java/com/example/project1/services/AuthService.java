@@ -1,13 +1,20 @@
 package com.example.project1.services;
 
+import com.example.project1.payload.dto.JwtResponseDto;
 import com.example.project1.payload.request.*;
 import com.example.project1.payload.response.LoginResponse;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 
 public interface AuthService {
     void register(RegisterRequest registerRequest);
 
-    LoginResponse login(LoginRequest loginRequest);
+    String login(LoginRequest loginRequest, HttpServletResponse response);
+
+    LoginResponse twoFactorAuthenticate(GoogleValidateCodeRequest googleValidateCodeRequest);
+
+    HttpHeaders responseCookies(String email);
 
     String refreshToken(RefreshTokenRequest request);
 

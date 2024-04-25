@@ -6,6 +6,11 @@ const baseApi = process.env.REACT_APP_API_ENDPOINT
 export const login = (email: string, password: string) => {
   return APIClient.post(baseApi + CONFIG.ENDPOINT_API.AUTH.LOGIN, { email, password })
 }
+
+export const twoAuth = (email: string, code: string) => {
+  return APIClient.post(baseApi + CONFIG.ENDPOINT_API.AUTH.TWO_AUTH, { userName:email, code:code })
+}
+
 export const register = (first_name:string, last_name:string, birth_day:string, phone_number:string, email:string, password: string, confirm_password:string) => {
   return APIClient.post(baseApi + CONFIG.ENDPOINT_API.AUTH.REGISTER, 
     {

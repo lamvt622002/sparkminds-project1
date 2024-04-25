@@ -1,5 +1,6 @@
 package com.example.project1.controllers;
 
+import com.example.project1.payload.dto.JwtResponseDto;
 import com.example.project1.payload.request.*;
 import com.example.project1.payload.response.LoginResponse;
 import com.example.project1.payload.response.RefreshTokenResponse;
@@ -7,6 +8,7 @@ import com.example.project1.payload.response.ResponseMessage;
 import com.example.project1.payload.response.ResponseRepository;
 import com.example.project1.services.AuthService;
 import com.example.project1.services.OtpVerificationService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -24,36 +26,18 @@ public class AuthController {
     private final OtpVerificationService otpVerificationService;
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseRepository> login(@RequestBody LoginRequest loginRequest){
-        LoginResponse loginResponse = authService.login(loginRequest);
-        ResponseCookie accessToken = ResponseCookie.from("access_token", loginResponse.getAccessToken())
-                .httpOnly(false)
-                .secure(true)
-                .path("/")
-                .maxAge(2* 24 * 60 * 60)
-                .domain("localhost")
-                .build();
-        ResponseCookie refreshToken = ResponseCookie.from("refresh_token", loginResponse.getRefreshToken())
-                .httpOnly(false)
-                .secure(true)
-                .path("/")
-                .maxAge(2* 24 * 60 * 60)
-                .domain("localhost")
-                .build();
-        ResponseCookie session = ResponseCookie.from("session", loginResponse.getSession())
-                .httpOnly(false)
-                .secure(true)
-                .path("/")
-                .maxAge(2* 24 * 60 * 60)
-                .domain("localhost")
-                .build();
+    public ResponseEntity<ResponseRepository> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response){
+        String qrCode = authService.login(loginRequest, response);
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage<>(true, HttpStatus.OK.value(),qrCode));
+    }
 
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(HttpHeaders.SET_COOKIE, accessToken.toString());
-        responseHeaders.add(HttpHeaders.SET_COOKIE, refreshToken.toString());
-        responseHeaders.add(HttpHeaders.SET_COOKIE, session.toString());
+    @PostMapping("/two-auth")
+    public ResponseEntity<ResponseRepository> twoFactorAuthenticate(@Valid @RequestBody GoogleValidateCodeRequest googleValidateCodeRequest){
+        LoginResponse loginResponse = authService.twoFactorAuthenticate(googleValidateCodeRequest);
 
-        return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(new ResponseMessage<>(true, HttpStatus.OK.value(),loginResponse));
+        HttpHeaders responseCookies  = authService.responseCookies(loginResponse.getEmail());
+
+        return ResponseEntity.status(HttpStatus.OK).headers(responseCookies).body(new ResponseMessage<>(true, HttpStatus.OK.value(),loginResponse));
     }
 
     @PostMapping("/register")

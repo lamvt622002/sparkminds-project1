@@ -14,13 +14,11 @@ const useUserStore = (set: any, get: any) => ({
     set((state: any) => ({
       ...state,
       user: data,
-      token: data.accessToken,
     }))
   },
   logout: () => {
     set(() => ({
       user: null,
-      token: '', 
     }))
   },
 
@@ -36,9 +34,7 @@ const useUserStore = (set: any, get: any) => ({
             ...state,
             user: {
               ...state.user,
-              accessToken: res.data.data.accessToken,
             },
-            token: res.data.data.accessToken,
           }))
           get().setDataUser(get().user)
         } else{

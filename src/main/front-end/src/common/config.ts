@@ -6,7 +6,8 @@ export const CONFIG = {
             LOGOUT: 'api/auth/logout',
             REFRESH: 'api/auth/refresh',
             FORGOT_PASSWORD: 'api/auth/forgot-password',
-            CHANGE_PASSWORD: 'api/auth/change-password'
+            CHANGE_PASSWORD: 'api/auth/change-password',
+            TWO_AUTH:'api/auth/two-auth'
         },
         USER:{
             CHANGE_EMAIL:'api/user/change-email',

@@ -24,8 +24,4 @@ export interface IUser {
   role:Role
 
   status:Status
-
-  accessToken:string
-
-  refreshToken:string
   }
