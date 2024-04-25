@@ -73,6 +73,10 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("The new password and the old one must be different");
         }
 
+        if(!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmNewPassword())){
+            throw new BadRequestException("New password and confirm new password must be the same");
+        }
+
         String encodeNewPassword = passwordEncoder.encode(changePasswordRequest.getNewPassword());
 
         user.setPassword(encodeNewPassword);

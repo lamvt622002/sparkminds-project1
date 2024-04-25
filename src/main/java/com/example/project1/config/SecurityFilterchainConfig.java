@@ -22,21 +22,13 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityFilterchainConfig {
     private final AuthenticationProvider authenticationProvider;
     private final AuthJwtRequestFilter authJwtRequestFilter;
     private final AuthCheckUserEnableFilter authCheckUserEnableFilter;
     private final LogoutHandlerSecurity logoutHandlerSecurity;
 
-    private final AuthenticationEntryPoint authenticationEntryPoint;
-
-    public SecurityFilterchainConfig(AuthenticationProvider authenticationProvider, AuthJwtRequestFilter authJwtRequestFilter, AuthCheckUserEnableFilter authCheckUserEnableFilter, LogoutHandlerSecurity logoutHandlerSecurity,@Qualifier("restAuthenticationEntryPoint") AuthenticationEntryPoint authenticationEntryPoint) {
-        this.authenticationProvider = authenticationProvider;
-        this.authJwtRequestFilter = authJwtRequestFilter;
-        this.authCheckUserEnableFilter = authCheckUserEnableFilter;
-        this.logoutHandlerSecurity = logoutHandlerSecurity;
-        this.authenticationEntryPoint = authenticationEntryPoint;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -47,7 +39,6 @@ public class SecurityFilterchainConfig {
         httpSecurity.authenticationProvider(authenticationProvider);
         httpSecurity.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.logout(c -> c.addLogoutHandler(logoutHandlerSecurity).logoutUrl("/api/auth/logout").permitAll());
-        httpSecurity.exceptionHandling(c -> c.authenticationEntryPoint(authenticationEntryPoint));
         httpSecurity.authorizeHttpRequests(c -> c.requestMatchers(
                 "/api/auth/**",
                 "/swagger-ui/**",

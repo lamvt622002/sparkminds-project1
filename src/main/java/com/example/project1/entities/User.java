@@ -51,7 +51,6 @@ public class User extends BaseEntity{
     private Authorities role;
 
     @OneToMany(mappedBy = "user")
-    @NonNull
     @ToString.Exclude
     private List<LinkVerification> linkVerifications;
 

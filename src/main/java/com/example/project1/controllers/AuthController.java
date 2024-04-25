@@ -30,21 +30,21 @@ public class AuthController {
                 .httpOnly(false)
                 .secure(true)
                 .path("/")
-                .maxAge(30 * 60)
+                .maxAge(2* 24 * 60 * 60)
                 .domain("localhost")
                 .build();
         ResponseCookie refreshToken = ResponseCookie.from("refresh_token", loginResponse.getRefreshToken())
                 .httpOnly(false)
                 .secure(true)
                 .path("/")
-                .maxAge(60 * 60)
+                .maxAge(2* 24 * 60 * 60)
                 .domain("localhost")
                 .build();
         ResponseCookie session = ResponseCookie.from("session", loginResponse.getSession())
                 .httpOnly(false)
                 .secure(true)
                 .path("/")
-                .maxAge(30 * 60)
+                .maxAge(2* 24 * 60 * 60)
                 .domain("localhost")
                 .build();
 

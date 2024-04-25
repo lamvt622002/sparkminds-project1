@@ -65,7 +65,7 @@ public class ExceptionControllerAdvice {
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ResponseRepository> expiredJwtException(ExpiredJwtException ex){
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ResponseError<>(false, HttpStatus.FORBIDDEN.value(),ex.getMessage() ));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseError<>(false, HttpStatus.UNAUTHORIZED.value(),ex.getMessage() ));
     }
 
     @ExceptionHandler(PasswordChangeRequiredException.class)
@@ -86,10 +86,14 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<ResponseRepository> apiException(ApiException ex){
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseError<>(false, HttpStatus.INTERNAL_SERVER_ERROR.value(),ex.getMessage() ));
     }
-    @ExceptionHandler(AuthenticationException.class)
-    @ResponseBody
-    public ResponseEntity<ResponseRepository> handleAuthenticationException(Exception ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseError<>(false, HttpStatus.UNAUTHORIZED.value(),ex.getMessage() ));
 
+    @ExceptionHandler(InvalidSessionException.class)
+    public ResponseEntity<ResponseRepository> invalidSessionException(InvalidSessionException ex){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseError<>(false, 40101,ex.getMessage() ));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ResponseRepository> exception(Exception ex){
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseError<>(false, HttpStatus.INTERNAL_SERVER_ERROR.value(),ex.getMessage() ));
     }
 }

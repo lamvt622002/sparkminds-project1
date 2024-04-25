@@ -19,4 +19,7 @@ public class ChangePasswordRequest {
 
     @Pattern(regexp = Constants.PASSWORD_REGEX, message = "Password must have at least 6 characters, contain at least 1 lowercase letter, 1 uppercase letter and 1 special character")
     private String newPassword;
+
+    @Pattern(regexp = Constants.PASSWORD_REGEX, message = "Password must have at least 6 characters, contain at least 1 lowercase letter, 1 uppercase letter and 1 special character")
+    private String confirmNewPassword;
 }

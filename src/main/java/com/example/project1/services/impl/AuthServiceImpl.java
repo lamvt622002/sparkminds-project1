@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
@@ -91,8 +92,10 @@ public class AuthServiceImpl implements AuthService {
 
         String passwordEncode = passwordEncoder.encode(registerRequest.getPassword());
 
+
         Authorities defaultAuthority = authoritiesService.findAuthorityByAuthority(Role.USER.name())
                 .orElseThrow(() -> new DataNotFoundExeption("Invalid authority"));
+
 
         User user = User.builder()
                 .firstName(registerRequest.getFirstName())
@@ -107,7 +110,9 @@ public class AuthServiceImpl implements AuthService {
                 .isDelete(0)
                 .build();
 
-        User userSaved = userService.saveUser(user);
+        System.out.println(user);
+
+        User userSaved = userRepository.save(user);
 
         sendingEmailService.sendVerificationEmail(userSaved);
 //        sendingEmailService.sentOtpVerification(userSaved);
@@ -205,7 +210,7 @@ public class AuthServiceImpl implements AuthService {
             throw new VerifyException("Please verify your email before login");
         }else if(user.getStatus() == UserStatus.RESET_PASSWORD.getValue()){
             throw new PasswordChangeRequiredException("Please change password before login");
-        }else if(user.getStatus() == UserStatus.LOCK.getValue()){
+        }else if(user.getStatus() == UserStatus.LOCK.getValue() && user.getLockoutTime().isAfter(LocalDateTime.now(ZoneId.systemDefault()))){
             throw new BadRequestException("Your account was block. Please try again");
         }
 
