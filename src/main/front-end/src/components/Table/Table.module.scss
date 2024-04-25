@@ -1,0 +1,16 @@
+@import 'styles/base/mixin.scss';
+@import 'styles/base/variables.scss';
+
+.main{
+    height: calc(100vh - 130px);
+    max-height: calc(100vh - 130px);
+    width: 100%;
+    .table {
+        background-color: $color-graybase-600;
+        font-size: 16px !important;
+        max-height: calc(100vh - 450px);
+        overflow-y: auto;
+    }
+}
+
+
