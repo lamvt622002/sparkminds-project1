@@ -1,6 +1,9 @@
 package com.example.project1.payload.request;
 
+import com.example.project1.annotations.ValidPhoneNumber;
 import com.example.project1.constants.Constants;
+import com.example.project1.utitilies.MessagesUtils;
+import com.example.project1.utitilies.StringUtils;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,28 +16,27 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class RegisterRequest {
     @NotNull
-    @Size(min = 2 , message = "First name must be from 2 characters")
+    @Size(min = 2 , max = 10,message = "{error.firstname.length}") // ?
     private String firstName;
 
     @NotNull
-    @Size(min = 2, message = "Last name must be from 2 characters")
+    @Size(min = 2, max = 10, message = "{error.lastname.length}")
     private String lastName;
 
-    @Past(message = "Birthday must be in the past")
+    @Past(message = "{error.birthday.past}")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDay;
 
-    @Size(min = 10, max = 10, message = "Phone number must be 10 numeric")
-    @Pattern(regexp = Constants.PHONE_NUMBER_REGEX, message = "Phone number is invalid")
+    @ValidPhoneNumber(message = "{error.phonenumber.invalid}")
     private String phoneNumber;
 
-    @Pattern(regexp = Constants.EMAIL_REGEX, message = "Email is invalid")
+    @Pattern(regexp = Constants.EMAIL_REGEX, message = "{error.email.invalid}")
     private String email;
 
-    @Pattern(regexp = Constants.PASSWORD_REGEX, message = "Password must have at least 6 characters, contain at least 1 lowercase letter, 1 uppercase letter and 1 special character")
+    @Pattern(regexp = Constants.PASSWORD_REGEX, message = "{error.password.invalid}")
     private String password;
 
-    @Pattern(regexp = Constants.PASSWORD_REGEX, message = "Password must have at least 6 characters, contain at least 1 lowercase letter, 1 uppercase letter and 1 special character")
+    @Pattern(regexp = Constants.PASSWORD_REGEX, message = "{error.password.invalid}")
     private String confirmPassword;
 
 }

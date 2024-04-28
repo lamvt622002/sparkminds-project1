@@ -13,12 +13,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ChangePasswordWithoutAuthRequest {
 
-    @Pattern(regexp = Constants.EMAIL_REGEX, message = "Email is invalid")
+    @Pattern(regexp = Constants.EMAIL_REGEX, message = "{error.email.invalid}")
     private String email;
 
-    @Pattern(regexp = Constants.PASSWORD_REGEX, message = "Password must have at least 6 characters, contain at least 1 lowercase letter, 1 uppercase letter and 1 special character")
+    @Pattern(regexp = Constants.PASSWORD_REGEX, message = "{error.password.invalid}")
     private String oldPassword;
 
-    @Pattern(regexp = Constants.PASSWORD_REGEX, message = "Password must have at least 6 characters, contain at least 1 lowercase letter, 1 uppercase letter and 1 special character")
+    @Pattern(regexp = Constants.PASSWORD_REGEX, message = "{error.password.invalid}")
     private String newPassword;
 }

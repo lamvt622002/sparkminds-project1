@@ -1,15 +1,20 @@
 package com.example.project1.exception;
 
+import com.example.project1.utitilies.MessagesUtils;
+
 public class UnauthorizedAccessException extends RuntimeException{
-    public UnauthorizedAccessException(){
-        super("You are not authorized to access this resource.");
+    private String message;
+
+    public UnauthorizedAccessException(String errorCode, Object... var2) {
+        this.message = MessagesUtils.getMessage(errorCode, var2);
     }
 
-    public UnauthorizedAccessException(String message){
-        super(message);
+    @Override
+    public String getMessage() {
+        return message;
     }
 
-    public UnauthorizedAccessException(String message, Throwable cause){
-        super(message, cause);
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

@@ -40,9 +40,6 @@ public class RegisterResponse {
     private Integer status;
 
     @NonNull
-    private Integer isDelete;
-
-    @NonNull
     private LocalDateTime createdAt;
 
     @NonNull

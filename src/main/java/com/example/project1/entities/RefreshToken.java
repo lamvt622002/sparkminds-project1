@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @RequiredArgsConstructor
 @NoArgsConstructor
-public class RefreshToken extends BaseEntity{
+public class RefreshToken extends AuditTable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter

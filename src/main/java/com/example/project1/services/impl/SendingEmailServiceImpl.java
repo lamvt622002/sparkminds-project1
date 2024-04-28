@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -45,6 +46,7 @@ public class SendingEmailServiceImpl implements SendingEmailService {
     }
 
     @Override
+//    @Async  ?? config pool -> sent fail k bao loi
     public void sendVerificationEmail(User user) {
 
         LinkVerification linkVerification = linkVerificationService.createLinkVerification(user);

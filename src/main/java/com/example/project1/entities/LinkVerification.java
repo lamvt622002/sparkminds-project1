@@ -2,7 +2,6 @@ package com.example.project1.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.event.spi.ReplicateEvent;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Table(name = "link_verification")
-public class LinkVerification extends BaseEntity{
+public class LinkVerification extends AuditTable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter

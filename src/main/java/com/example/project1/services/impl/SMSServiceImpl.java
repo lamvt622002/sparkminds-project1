@@ -16,10 +16,10 @@ public class SMSServiceImpl implements SMSService {
 
     @Override
     public void sendMessage(String phoneNumber,String body){
-        String phone ="+84" + phoneNumber.substring(1);
+
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
         Message message = Message.creator(
-                new PhoneNumber(phone),
+                new PhoneNumber(phoneNumber),
                 new PhoneNumber("+12253618811"),
                 body
         ).create();

@@ -1,15 +1,20 @@
 package com.example.project1.exception;
 
+import com.example.project1.utitilies.MessagesUtils;
+
 public class BadRequestException extends RuntimeException{
-    public BadRequestException(){
-        super("Bad request exception");
+    private String message;
+
+    public BadRequestException(String errorCode, Object... var2) {
+        this.message = MessagesUtils.getMessage(errorCode, var2);
     }
 
-    public BadRequestException(String message){
-        super(message);
+    @Override
+    public String getMessage() {
+        return message;
     }
 
-    public BadRequestException(String message, Throwable cause){
-        super(message,cause);
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

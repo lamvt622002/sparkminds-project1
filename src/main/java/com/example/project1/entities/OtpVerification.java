@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class OtpVerification extends BaseEntity{
+public class OtpVerification extends AuditTable {
     @Id
     @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)

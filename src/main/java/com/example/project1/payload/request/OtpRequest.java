@@ -13,9 +13,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OtpRequest {
-    @Pattern(regexp = Constants.EMAIL_REGEX, message = "Email is invalid")
+    @Pattern(regexp = Constants.EMAIL_REGEX, message = "{error.email.invalid}")
     private String email;
 
-    @Size(min = 6, max = 6, message = "The OTP must be 6 characters.")
+    @Size(min = 6, max = 6, message = "{error.otp.length}")
     private String otp;
 }

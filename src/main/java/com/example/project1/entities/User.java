@@ -15,7 +15,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Builder
 @Table(name = "users")
-public class User extends BaseEntity{
+public class User extends AuditTable {
     @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,8 +56,4 @@ public class User extends BaseEntity{
 
     @NonNull
     private Integer status;
-
-    @NonNull
-    private Integer isDelete;
-
 }

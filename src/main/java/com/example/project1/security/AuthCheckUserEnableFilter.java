@@ -1,8 +1,9 @@
 package com.example.project1.security;
 
+import com.example.project1.constants.Constants;
 import com.example.project1.entities.User;
 import com.example.project1.enums.UserStatus;
-import com.example.project1.exception.DataNotFoundExeption;
+import com.example.project1.exception.DataNotFoundException;
 import com.example.project1.services.impl.UserServiceImpl;
 import com.example.project1.utitilies.JwtUtilily;
 import jakarta.servlet.FilterChain;
@@ -47,7 +48,7 @@ public class AuthCheckUserEnableFilter extends OncePerRequestFilter {
 
             Optional<User> getUser = userService.findUserByEmail(((String) email));
 
-            User user = getUser.orElseThrow(() -> new DataNotFoundExeption("User not found"));
+            User user = getUser.orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, email));
 
             if(user.getStatus() != UserStatus.ACTIVE.getValue()){
                 response.setStatus(HttpStatus.FORBIDDEN.value());

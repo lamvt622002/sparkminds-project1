@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class UserSession {
+public class UserSession extends AuditTable{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID sessionId;

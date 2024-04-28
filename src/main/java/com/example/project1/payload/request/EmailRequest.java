@@ -12,6 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EmailRequest {
-    @Pattern(regexp = Constants.EMAIL_REGEX, message = "Email is invalid")
+    @Pattern(regexp = Constants.EMAIL_REGEX, message = "{error.email.invalid}")
     private String email;
 }

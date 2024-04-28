@@ -1,5 +1,6 @@
 package com.example.project1.security;
 
+import com.example.project1.constants.Constants;
 import com.example.project1.exception.BadRequestException;
 import com.example.project1.repository.UserSessionRepository;
 import com.example.project1.services.UserSessionService;
@@ -26,7 +27,7 @@ public class LogoutHandlerSecurity implements LogoutHandler {
         String token = request.getHeader("Authorization");
 
         if(token == null){
-            throw new BadRequestException("Invalid token");
+            throw new BadRequestException(Constants.ERROR_CODE.INVALID_TOKEN);
         }
 
         Map<String, Object> claims = jwtUtilily.extractAllClaim(token);

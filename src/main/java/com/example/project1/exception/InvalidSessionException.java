@@ -1,15 +1,20 @@
 package com.example.project1.exception;
 
+import com.example.project1.utitilies.MessagesUtils;
+
 public class InvalidSessionException extends RuntimeException{
-    public InvalidSessionException(){
-        super("Invalid session");
+    private String message;
+
+    public InvalidSessionException(String errorCode, Object... var2) {
+        this.message = MessagesUtils.getMessage(errorCode, var2);
     }
 
-    public InvalidSessionException(String message){
-        super(message);
+    @Override
+    public String getMessage() {
+        return message;
     }
 
-    public InvalidSessionException(String message, Throwable cause){
-        super(message, cause);
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

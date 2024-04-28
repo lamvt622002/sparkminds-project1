@@ -1,11 +1,13 @@
 package com.example.project1.services.impl;
 
+import com.example.project1.constants.Constants;
 import com.example.project1.entities.OtpChangePhone;
 import com.example.project1.entities.User;
 import com.example.project1.enums.UserStatus;
 import com.example.project1.exception.BadRequestException;
-import com.example.project1.exception.DataNotFoundExeption;
+import com.example.project1.exception.DataNotFoundException;
 import com.example.project1.exception.DatabaseAccessException;
+import com.example.project1.exception.UnauthorizedAccessException;
 import com.example.project1.payload.request.*;
 import com.example.project1.repository.OtpChangePhoneRepository;
 import com.example.project1.repository.UserRepository;
@@ -59,22 +61,22 @@ public class UserServiceImpl implements UserService {
     public void changePassword(ChangePasswordRequest changePasswordRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, email));
 
         if(user.getStatus() != UserStatus.ACTIVE.getValue()){
-            throw new BadRequestException("Your account is not active");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.NOT_ACTIVE_ACCOUNT);
         }
 
         if(!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())){
-            throw new BadRequestException("Incorrect password");
+            throw new BadRequestException(Constants.ERROR_CODE.INVALID_PASSWORD);
         }
 
         if(passwordEncoder.matches(changePasswordRequest.getNewPassword(), user.getPassword())){
-            throw new BadRequestException("The new password and the old one must be different");
+            throw new BadRequestException(Constants.ERROR_CODE.DUPLICATE_OLD_PASSWORD_NEW_PASSWORD);
         }
 
         if(!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmNewPassword())){
-            throw new BadRequestException("New password and confirm new password must be the same");
+            throw new BadRequestException(Constants.ERROR_CODE.INVALID_PASSWORD_AND_CONFIRM_PASSWORD);
         }
 
         String encodeNewPassword = passwordEncoder.encode(changePasswordRequest.getNewPassword());
@@ -91,18 +93,18 @@ public class UserServiceImpl implements UserService {
     public void changeEmail(ChangeEmailRequest changeEmailRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, email));
 
         if(!passwordEncoder.matches(changeEmailRequest.getPassword(),user.getPassword())){
-            throw new BadRequestException("Invalid password");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.INVALID_PASSWORD);
         }
 
         if(userRepository.existsByEmail(changeEmailRequest.getNewEmail())){
-            throw new BadRequestException("Email already exists");
+            throw new BadRequestException(Constants.ERROR_CODE.EMAIL_ALREADY_EXISTS);
         }
 
         if(user.getEmail().equals(changeEmailRequest.getNewEmail())){
-            throw new BadRequestException("New email must be different");
+            throw new BadRequestException(Constants.ERROR_CODE.DUPLICATE_OLD_EMAIL_AND_NEW_EMAIL);
         }
 
         sendingEmailService.sendVerificationChangeEmail(user, changeEmailRequest.getNewEmail());
@@ -112,18 +114,18 @@ public class UserServiceImpl implements UserService {
     public void changePhone(ChangePhoneRequest changePhoneRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, email));
 
         if(!passwordEncoder.matches(changePhoneRequest.getPassword(),user.getPassword())){
-            throw new BadRequestException("Invalid password");
+            throw new BadRequestException(Constants.ERROR_CODE.INVALID_PASSWORD);
         }
 
         if(userRepository.existsByPhoneNumber(changePhoneRequest.getPhoneNumber())){
-            throw new BadRequestException("Phone number already exists");
+            throw new BadRequestException(Constants.ERROR_CODE.PHONE_NUMBER_ALREADY_EXISTS);
         }
 
         if(user.getPhoneNumber().equals(changePhoneRequest.getPhoneNumber())){
-            throw new BadRequestException("Phone number must be different");
+            throw new BadRequestException(Constants.ERROR_CODE.DUPLICATE_OLD_PHONE_AND_NEW_PHONE);
         }
 
         OtpChangePhone phone = phoneService.createOtpChangePhone(user, changePhoneRequest.getPhoneNumber());
@@ -142,9 +144,9 @@ public class UserServiceImpl implements UserService {
     public void verifyChangePhone(OtpChangePhoneRequest verifyChangePhoneRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, email));
 
-        OtpChangePhone otpChangePhone = otpChangePhoneRepository.findByUserIdAndOtp(user.getId(), verifyChangePhoneRequest.getOtp()).orElseThrow(() -> new DataNotFoundExeption("Invalid OTP"));
+        OtpChangePhone otpChangePhone = otpChangePhoneRepository.findByUserIdAndOtp(user.getId(), verifyChangePhoneRequest.getOtp()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.INVALID_CODE, verifyChangePhoneRequest.getOtp()));
 
          phoneService.verifyOtpChangePhone(otpChangePhone);
 

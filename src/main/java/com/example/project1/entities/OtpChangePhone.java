@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class OtpChangePhone extends BaseEntity{
+public class OtpChangePhone extends AuditTable {
     @Id
     @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)

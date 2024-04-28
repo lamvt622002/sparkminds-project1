@@ -1,5 +1,6 @@
 package com.example.project1.services.impl;
 
+import com.example.project1.constants.Constants;
 import com.example.project1.entities.Authorities;
 import com.example.project1.entities.RefreshToken;
 import com.example.project1.entities.User;
@@ -8,7 +9,6 @@ import com.example.project1.enums.Role;
 import com.example.project1.enums.SessionStatus;
 import com.example.project1.enums.UserStatus;
 import com.example.project1.exception.*;
-import com.example.project1.payload.dto.JwtResponseDto;
 import com.example.project1.payload.request.*;
 import com.example.project1.payload.response.JWTPayLoad;
 import com.example.project1.payload.response.LoginResponse;
@@ -22,6 +22,7 @@ import com.example.project1.utitilies.JwtUtilily;
 import com.example.project1.utitilies.PasswordGenerator;
 import com.google.zxing.WriterException;
 import io.jsonwebtoken.ExpiredJwtException;
+
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
@@ -46,41 +47,27 @@ import java.util.UUID;
 @Service
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
-
     private final UserService userService;
-
     private final PasswordEncoder passwordEncoder;
-
     private final AuthoritiesService authoritiesService;
-
-    private final JwtUtilily jwtUtilily;
-
+    private final JwtUtilily jwtUtility;
     private final SendingEmailService sendingEmailService;
-
     private final AuthenticationManager authenticationManager;
-
     private final UserDetailsService userDetailsService;
-
     private final UserDetailsServiceSecurity userDetailsServiceSecurity;
-
     private final RefreshTokenService refreshTokenService;
-
     private final RefreshTokenRepository refreshTokenRepository;
-
     private final PasswordGenerator passwordGenerator;
-
     private final UserSessionService userSessionService;
-    
     private final UserSessionRepository userSessionRepository;
-
     private final GoogleAuthenticatorServiceImpl googleAuthenticatorService;
 
-    public AuthServiceImpl(UserRepository userRepository, UserService userService, PasswordEncoder passwordEncoder, AuthoritiesService authoritiesService, JwtUtilily jwtUtilily, SendingEmailService emailService, @Lazy AuthenticationManager authenticationManager, UserDetailsService userDetailsService, UserDetailsServiceSecurity userDetailsServiceSecurity, RefreshTokenService refreshTokenService, RefreshTokenRepository refreshTokenRepository, PasswordGenerator passwordGenerator, UserSessionService userSessionService, UserSessionRepository userSessionRepository, GoogleAuthenticatorServiceImpl googleAuthenticatorService) {
+    public AuthServiceImpl(UserRepository userRepository, UserService userService, PasswordEncoder passwordEncoder, AuthoritiesService authoritiesService, JwtUtilily jwtUtility, SendingEmailService emailService, @Lazy AuthenticationManager authenticationManager, UserDetailsService userDetailsService, UserDetailsServiceSecurity userDetailsServiceSecurity, RefreshTokenService refreshTokenService, RefreshTokenRepository refreshTokenRepository, PasswordGenerator passwordGenerator, UserSessionService userSessionService, UserSessionRepository userSessionRepository, GoogleAuthenticatorServiceImpl googleAuthenticatorService) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.authoritiesService = authoritiesService;
-        this.jwtUtilily = jwtUtilily;
+        this.jwtUtility = jwtUtility;
         this.sendingEmailService = emailService;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
@@ -100,10 +87,8 @@ public class AuthServiceImpl implements AuthService {
 
         String passwordEncode = passwordEncoder.encode(registerRequest.getPassword());
 
-
         Authorities defaultAuthority = authoritiesService.findAuthorityByAuthority(Role.USER.name())
-                .orElseThrow(() -> new DataNotFoundExeption("Invalid authority"));
-
+                .orElseThrow(() -> new DataNotFoundException("Invalid authority"));
 
         User user = User.builder()
                 .firstName(registerRequest.getFirstName())
@@ -115,17 +100,12 @@ public class AuthServiceImpl implements AuthService {
                 .failedLoginAttempts(0)
                 .role(defaultAuthority)
                 .status(UserStatus.INACTIVE.getValue())
-                .isDelete(0)
                 .build();
-
-        System.out.println(user);
 
         User userSaved = userRepository.save(user);
 
         sendingEmailService.sendVerificationEmail(userSaved);
-//        sendingEmailService.sentOtpVerification(userSaved);
     }
-
 
     @Override
     public String login(LoginRequest loginRequest, HttpServletResponse response) {
@@ -133,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
 
-        User user = userRepository.findUserByEmail(userDetails.getUsername()).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        User user = userRepository.findUserByEmail(userDetails.getUsername()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, userDetails.getUsername()));
 
         String qrCode;
 
@@ -151,7 +131,7 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Invalid code");
         }
 
-        User user = userRepository.findUserByEmail(googleValidateCodeRequest.getUserName()).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        User user = userRepository.findUserByEmail(googleValidateCodeRequest.getUserName()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, googleValidateCodeRequest.getUserName()));
 
         return LoginResponse.builder()
                 .firstName(user.getFirstName())
@@ -166,13 +146,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public HttpHeaders responseCookies(String email) {
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, email));
 
         final UserSession userSession = userSessionService.createUserSession(user);
 
         JWTPayLoad  jwtPayLoad = new JWTPayLoad(user.getId(), user.getEmail(), userSession.getSessionId().toString());
 
-        final String accessToken = jwtUtilily.generateToken(jwtPayLoad, 30);
+        final String accessToken = jwtUtility.generateToken(jwtPayLoad, 30);
 
         final RefreshToken refreshToken = refreshTokenService.createRefreshToken(jwtPayLoad);
 
@@ -210,41 +190,40 @@ public class AuthServiceImpl implements AuthService {
         String token = request.getRefreshToken();
         String email = null;
         Map<String, Object> claims;
-;
-        try{
-            email = jwtUtilily.extractUserName(token);
 
+        try{
+            email = jwtUtility.extractUserName(token);
         }catch (ExpiredJwtException ex){
-            refreshTokenRepository.delete(refreshTokenService.findByToken(token).orElseThrow(() -> new DataNotFoundExeption("Refresh token not found")));
+            refreshTokenRepository.delete(refreshTokenService.findByToken(token).orElseThrow(() -> new DataNotFoundException("Refresh token not found")));
             claims = ex.getClaims();
             UUID sessionId = UUID.fromString(claims.get("session").toString());
             UserSession userSession = userSessionRepository.findById(sessionId).orElseThrow(() -> new BadRequestException("Session not found"));
             userSession.setStatus(SessionStatus.INACTIVE_SESSION.getValue());
             userSessionRepository.save(userSession);
-            throw new VerifyException("Your session have been expired. Please login again");
+            throw new InvalidSessionException(Constants.ERROR_CODE.EXPIRED_SESSION);
         }
 
-        claims = jwtUtilily.extractAllClaim(token);
+        claims = jwtUtility.extractAllClaim(token);
 
         UUID sessionId = UUID.fromString(claims.get("session").toString());
 
         if(!userSessionService.isValidSession(sessionId)){
-            throw new InvalidSessionException("Invalid session");
+            throw new InvalidSessionException(Constants.ERROR_CODE.INVALID_SESSION);
         }
 
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        String finalEmail = email;
+        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, finalEmail));
 
         final UserSession userSession = userSessionService.createUserSession(user);
 
         JWTPayLoad  jwtPayLoad = new JWTPayLoad(user.getId(), user.getEmail(), userSession.getSessionId().toString());
 
-
         String newAccessToken = refreshTokenService.findByToken(token)
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(u -> {
-                    return jwtUtilily.generateToken(jwtPayLoad, 1);
-                }).orElseThrow(() -> new DataNotFoundExeption("Can not find refresh token"));
+                    return jwtUtility.generateToken(jwtPayLoad, 1);
+                }).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.REFRESH_TOKEN_NOT_FOUND));
 
         return newAccessToken;
     }
@@ -261,11 +240,11 @@ public class AuthServiceImpl implements AuthService {
         boolean isPasswordMarches = passwordEncoder.matches(password, userDetail.getPassword());
 
         if (user.getStatus() == UserStatus.INACTIVE.getValue()) {
-            throw new VerifyException("Please verify your email before login");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.VERIFY_EMAIL);
         }else if(user.getStatus() == UserStatus.RESET_PASSWORD.getValue()){
-            throw new PasswordChangeRequiredException("Please change password before login");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.REQUIRE_CHANGE_PASSWORD);
         }else if(user.getStatus() == UserStatus.LOCK.getValue() && user.getLockoutTime().isAfter(LocalDateTime.now(ZoneId.systemDefault()))){
-            throw new BadRequestException("Your account was block. Please try again");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.BLOCK_ACCOUNT);
         }
 
         if (user.getStatus() == -1 && user.getFailedLoginAttempts() == 3) {
@@ -306,13 +285,13 @@ public class AuthServiceImpl implements AuthService {
                 user.setLockoutTime(LocalDateTime.now(ZoneId.systemDefault()).plusMinutes(30));
                 userService.saveUser(user);
             }
-            throw new BadCredentialsException("Incorrect password");
+            throw new BadRequestException(Constants.ERROR_CODE.INVALID_PASSWORD);
         }
     }
 
     @Override
     public void resentVerifyLink(EmailRequest request) {
-        User user = userRepository.findUserByEmail(request.getEmail()).orElseThrow(() -> new DataNotFoundExeption("Email not found"));
+        User user = userRepository.findUserByEmail(request.getEmail()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.EMAIL_NOT_FOUND));
 
         if(user.getStatus() != UserStatus.INACTIVE.getValue()){
             throw new BadRequestException("Your account was verified");
@@ -322,20 +301,20 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void resentOtpVerification(EmailRequest request) {
-        User user = userRepository.findUserByEmail(request.getEmail()).orElseThrow(() -> new DataNotFoundExeption("Email not found"));
+        User user = userRepository.findUserByEmail(request.getEmail()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, request.getEmail()));
 
         if(user.getStatus() != UserStatus.INACTIVE.getValue()){
-            throw new BadRequestException("Your account was verified");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.ACCOUNT_WAS_VERIFY);
         }
         sendingEmailService.sentOtpVerification(user);
     }
 
     @Override
     public void resetPassword(EmailRequest request) {
-        User user = userRepository.findUserByEmail(request.getEmail()).orElseThrow(() -> new DataNotFoundExeption("Email not found"));
+        User user = userRepository.findUserByEmail(request.getEmail()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, request.getEmail()));
 
         if(user.getStatus() == UserStatus.INACTIVE.getValue() || user.getStatus() == UserStatus.LOCK.getValue()){
-            throw new BadRequestException("Your account doesn't have permission");
+            throw new BadRequestException(Constants.ERROR_CODE.DONT_HAVE_PERMISSION);
         }
         String newPassword = passwordGenerator.generatePassword();
 
@@ -352,14 +331,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void changePassword(ChangePasswordWithoutAuthRequest request) {
-        User user = userRepository.findUserByEmail(request.getEmail()).orElseThrow(() -> new DataNotFoundExeption("Email not found"));
+        User user = userRepository.findUserByEmail(request.getEmail()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, request.getEmail()));
 
         if(user.getStatus() != UserStatus.RESET_PASSWORD.getValue()){
-            throw new BadRequestException("You don't have permission");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.DONT_HAVE_PERMISSION);
         }
 
         if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())){
-            throw new BadRequestException("Invalid password");
+            throw new BadRequestException(Constants.ERROR_CODE.INVALID_PASSWORD);
         }
 
         String encodePassword = passwordEncoder.encode(request.getNewPassword());
@@ -373,13 +352,13 @@ public class AuthServiceImpl implements AuthService {
 
     private void validateRegisterRequest(RegisterRequest registerRequest) {
         if (!registerRequest.getPassword().equals(registerRequest.getConfirmPassword())) {
-            throw new BadRequestException("Password not matching");
+            throw new BadRequestException(Constants.ERROR_CODE.INVALID_PASSWORD_AND_CONFIRM_PASSWORD);
         }
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new DataIntegrityViolationException("Email already exists in the database");
+            throw new DataIntegrityViolationException(Constants.ERROR_CODE.DUPLICATE_OLD_EMAIL_AND_NEW_EMAIL);
         }
         if (userRepository.existsByPhoneNumber(registerRequest.getPhoneNumber())) {
-            throw new DataIntegrityViolationException("Phone number already exists in the database");
+            throw new DataIntegrityViolationException(Constants.ERROR_CODE.PHONE_NUMBER_ALREADY_EXISTS);
         }
     }
 }

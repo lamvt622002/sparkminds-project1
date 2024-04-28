@@ -1,10 +1,11 @@
 package com.example.project1.services.impl;
 
+import com.example.project1.constants.Constants;
 import com.example.project1.entities.LinkVerification;
 import com.example.project1.entities.User;
 import com.example.project1.enums.UserStatus;
 import com.example.project1.exception.BadRequestException;
-import com.example.project1.exception.DataNotFoundExeption;
+import com.example.project1.exception.DataNotFoundException;
 import com.example.project1.payload.response.RegisterResponse;
 import com.example.project1.repository.LinkVerificationRepository;
 import com.example.project1.repository.UserRepository;
@@ -14,7 +15,6 @@ import com.example.project1.utitilies.JwtUtilily;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -53,7 +53,7 @@ public class LinkVerificationServiceImpl implements LinkVerificationService {
 
         String email = jwtUtilily.extractUserName(token);
 
-        LinkVerification linkVerification = linkVerificationRepository.findByTokenAndEmail(token, email).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        LinkVerification linkVerification = linkVerificationRepository.findByTokenAndEmail(token, email).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.LINK_VERIFICATION_NOT_FOUND));
 
         if(linkVerification.getIsUsed() == 1){
             theModel.addAttribute("Message","Link already used");
@@ -71,7 +71,7 @@ public class LinkVerificationServiceImpl implements LinkVerificationService {
 
         enableUserByLinkVerification(linkVerification);
 
-        theModel.addAttribute("Register", new RegisterResponse(user.getId(),user.getFirstName(), user.getLastName(), user.getBirthDay(), user.getPhoneNumber(), user.getEmail(), user.getFailedLoginAttempts(), user.getLockoutTime(), user.getRole().getAuthority(), user.getStatus(), user.getIsDelete(), user.getCreatedAt(), user.getUpdatedAt()));
+        theModel.addAttribute("Register", new RegisterResponse(user.getId(),user.getFirstName(), user.getLastName(), user.getBirthDay(), user.getPhoneNumber(), user.getEmail(), user.getFailedLoginAttempts(), user.getLockoutTime(), user.getRole().getAuthority(), user.getStatus(), user.getCreatedAt(), user.getUpdatedAt()));
 
         return "verify_register.html";
     }
@@ -94,7 +94,7 @@ public class LinkVerificationServiceImpl implements LinkVerificationService {
         Map<String, Object> claims = jwtUtilily.extractAllClaim(token);
         String newEmail = claims.get("newEmail").toString();
 
-        LinkVerification linkVerification = linkVerificationRepository.findByTokenAndEmail(token, newEmail).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        LinkVerification linkVerification = linkVerificationRepository.findByTokenAndEmail(token, newEmail).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.LINK_VERIFICATION_NOT_FOUND));
 
         if(linkVerification.getIsUsed() == 1){
             theModel.addAttribute("Message","Link already used");
@@ -116,7 +116,7 @@ public class LinkVerificationServiceImpl implements LinkVerificationService {
 
         userSessionService.clearAllUserSession(user);
 
-        theModel.addAttribute("Register", new RegisterResponse(user.getId(),user.getFirstName(), user.getLastName(), user.getBirthDay(), user.getPhoneNumber(), user.getEmail(), user.getFailedLoginAttempts(), user.getLockoutTime(), user.getRole().getAuthority(), user.getStatus(), user.getIsDelete(), user.getCreatedAt(), user.getUpdatedAt()));
+        theModel.addAttribute("Register", new RegisterResponse(user.getId(),user.getFirstName(), user.getLastName(), user.getBirthDay(), user.getPhoneNumber(), user.getEmail(), user.getFailedLoginAttempts(), user.getLockoutTime(), user.getRole().getAuthority(), user.getStatus(), user.getCreatedAt(), user.getUpdatedAt()));
 
         return "verify_register.html";
     }
@@ -155,7 +155,7 @@ public class LinkVerificationServiceImpl implements LinkVerificationService {
     public User enableUserByLinkVerification(LinkVerification linkVerification) {
         String email = jwtUtilily.extractUserName(linkVerification.getToken());
 
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new BadRequestException("User not found"));
+        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.USER_NOT_FOUND, email));
 
         user.setStatus(UserStatus.ACTIVE.getValue());
         return user;

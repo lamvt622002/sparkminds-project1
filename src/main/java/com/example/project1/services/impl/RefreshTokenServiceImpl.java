@@ -1,14 +1,14 @@
 package com.example.project1.services.impl;
 
+import com.example.project1.constants.Constants;
 import com.example.project1.entities.RefreshToken;
 import com.example.project1.entities.User;
-import com.example.project1.exception.DataNotFoundExeption;
-import com.example.project1.exception.VerifyException;
+import com.example.project1.exception.DataNotFoundException;
+import com.example.project1.exception.UnauthorizedAccessException;
 import com.example.project1.payload.response.JWTPayLoad;
 import com.example.project1.repository.RefreshTokenRepository;
 import com.example.project1.repository.UserRepository;
 import com.example.project1.services.RefreshTokenService;
-import com.example.project1.services.UserService;
 import com.example.project1.utitilies.JwtUtilily;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 @Service
 @RequiredArgsConstructor
@@ -36,7 +34,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public RefreshToken createRefreshToken(JWTPayLoad jwtPayLoad) {
         RefreshToken refreshToken = new RefreshToken();
 
-        User user = userRepository.findById(jwtPayLoad.getUserID()).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        User user = userRepository.findById(jwtPayLoad.getUserID()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND));
 
         String token = jwtUtilily.generateToken(jwtPayLoad, 60);
 
@@ -54,14 +52,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             jwtUtilily.isTokenExpired(refreshToken.getToken());
         }catch(ExpiredJwtException ex){
             refreshTokenRepository.delete(refreshToken);
-            throw new VerifyException("Your session have been expired. Please login again");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.EXPIRED_SESSION);
         }
         return refreshToken;
     }
 
     @Override
     public int deleteByUserId(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new DataNotFoundExeption("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND));
         return refreshTokenRepository.deleteByUser(user);
     }
 }

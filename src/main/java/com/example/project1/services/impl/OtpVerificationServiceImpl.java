@@ -1,5 +1,6 @@
 package com.example.project1.services.impl;
 
+import com.example.project1.constants.Constants;
 import com.example.project1.entities.OtpVerification;
 import com.example.project1.entities.User;
 import com.example.project1.enums.UserStatus;
@@ -36,21 +37,21 @@ public class OtpVerificationServiceImpl implements OtpVerificationService {
 
     @Override
     public boolean verifyOtpVerification(OtpVerification otp) {
-        OtpVerification otpVerification = otpVerificationRepository.findByIdAndOtp(otp.getId(), otp.getOtp()).orElseThrow(() -> new BadRequestException("Invalid OTP"));
+        OtpVerification otpVerification = otpVerificationRepository.findByIdAndOtp(otp.getId(), otp.getOtp()).orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.INVALID_CODE, otp.getOtp()));
 
         if(otpVerification.getExpireTime().isBefore(LocalDateTime.now(ZoneId.systemDefault()))){
-            throw new UnauthorizedAccessException("OTP expired time");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.EXPIRED_CODE);
         }
 
         if(otpVerification.getIsUsed() == 1){
-            throw new UnauthorizedAccessException("OTP is used");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.IS_USED_CODE);
         }
         return true;
     }
 
     @Override
     public OtpVerification disableOtpVerification(OtpVerification otp) {
-        OtpVerification otpVerification = otpVerificationRepository.findByIdAndOtp(otp.getId(), otp.getOtp()).orElseThrow(() -> new BadRequestException("Invalid OTP"));
+        OtpVerification otpVerification = otpVerificationRepository.findByIdAndOtp(otp.getId(), otp.getOtp()).orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.INVALID_CODE, otp.getOtp()));
 
         otpVerification.setIsUsed(1);
 
@@ -62,9 +63,9 @@ public class OtpVerificationServiceImpl implements OtpVerificationService {
     @Override
     @Transactional
     public void enableUserByOtp(OtpRequest otpRequest) {
-        User user = userRepository.findUserByEmail(otpRequest.getEmail()).orElseThrow(() -> new BadRequestException("User not found"));
+        User user = userRepository.findUserByEmail(otpRequest.getEmail()).orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.USER_NOT_FOUND, otpRequest.getEmail()));
 
-        OtpVerification otpVerification = otpVerificationRepository.findByUserIdAndOtp(user.getId(), otpRequest.getOtp()).orElseThrow(() -> new BadRequestException("Invalid OTP"));
+        OtpVerification otpVerification = otpVerificationRepository.findByUserIdAndOtp(user.getId(), otpRequest.getOtp()).orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.INVALID_CODE, otpRequest.getOtp()));
 
         verifyOtpVerification(otpVerification);
 

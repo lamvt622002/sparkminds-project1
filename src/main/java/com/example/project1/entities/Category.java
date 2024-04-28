@@ -5,17 +5,20 @@ import lombok.*;
 
 import java.util.List;
 
-//@EqualsAndHashCode(callSuper = true)
-@Data
 @Entity
-@Table(name = "test")
+@Table(name = "category")
+@Data
 @NoArgsConstructor
-@RequiredArgsConstructor
-public class Test  extends AuditTable{
+@AllArgsConstructor
+public class Category extends AuditTable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
     private Long id;
 
     @NonNull
-    private String name;
+    private String category_name;
+
+    @OneToMany(mappedBy = "category")
+    private List<Book> books;
 }

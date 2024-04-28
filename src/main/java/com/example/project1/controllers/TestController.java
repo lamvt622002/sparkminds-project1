@@ -1,49 +1,56 @@
 package com.example.project1.controllers;
 
-import com.example.project1.payload.request.GoogleValidateCodeRequest;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.warrenstrange.googleauth.GoogleAuthenticator;
-import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
-import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletResponse;
+import com.example.project1.payload.response.ResponseMessage;
+import com.example.project1.repository.AuthoritiesRepository;
+import com.example.project1.payload.response.ResponseRepository;
+import com.example.project1.repository.UserRepository;
+import com.example.project1.services.impl.TestService;
+import com.example.project1.utitilies.JwtUtilily;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
 public class TestController {
-   private final GoogleAuthenticator googleAuthenticator;
-    @GetMapping("/generate/{username}")
-    public void generate(@PathVariable String username, HttpServletResponse response) throws WriterException, IOException {
-        final GoogleAuthenticatorKey key = googleAuthenticator.createCredentials(username);
+    private final TestService testService;
+    private final JwtUtilily jwtUtilily;
 
-        //I've decided to generate QRCode on backend site
-        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+    private final AuthoritiesRepository authoritiesRepository;
 
-        String otpAuthURL = GoogleAuthenticatorQRGenerator.getOtpAuthTotpURL("my-demo", username, key);
+    private final UserRepository userRepository;
 
-        System.out.println(otpAuthURL);
-
-        BitMatrix bitMatrix = qrCodeWriter.encode(otpAuthURL, BarcodeFormat.QR_CODE, 200, 200);
-
-        //Simple writing to outputstream
-        ServletOutputStream outputStream = response.getOutputStream();
-        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
-        outputStream.close();
-    }
-    @PostMapping("/validate/key")
-
-    public boolean validateKey(@RequestBody GoogleValidateCodeRequest body) {
-        System.out.println(  googleAuthenticator.authorizeUser(body.getUserName(), body.getCode()));
-        return googleAuthenticator.authorizeUser(body.getUserName(), body.getCode());
+    @GetMapping("/test")
+    public ResponseEntity<ResponseRepository> test(){
+        System.out.println(userRepository.findById(1L).get().getLinkVerifications());
+            return null;
     }
 
+    @GetMapping("/setCookie")
+    public ResponseEntity<?> setCookie(){
+        ResponseCookie resCookie = ResponseCookie.from("user-id", "c2FtLnNtaXRoQGV4YW1wbGUuY29t")
+                .httpOnly(false)
+                .secure(true)
+                .path("/")
+                .maxAge(1 * 24 * 60 * 60)
+                .domain("localhost")
+                .build();
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HttpHeaders.SET_COOKIE, resCookie.toString());
+
+        return ResponseEntity.ok().headers(responseHeaders).build();
+    }
+
+    @GetMapping("/test-lombok")
+    public ResponseEntity<ResponseRepository> testLombok(){
+       
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage<>(true, HttpStatus.OK.value(), "heheheh"));
+    }
 }

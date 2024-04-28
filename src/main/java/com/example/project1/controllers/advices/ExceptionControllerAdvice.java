@@ -9,10 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLSyntaxErrorException;
@@ -36,8 +34,8 @@ public class ExceptionControllerAdvice {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseError<>(false, HttpStatus.CONFLICT.value(),ex.getMessage() ));
     }
 
-    @ExceptionHandler(DataNotFoundExeption.class)
-    public ResponseEntity<ResponseRepository> dataNotFoundExeption(DataNotFoundExeption ex){
+    @ExceptionHandler(DataNotFoundException.class)
+    public ResponseEntity<ResponseRepository> dataNotFoundExeption(DataNotFoundException ex){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseError<>(false, HttpStatus.NOT_FOUND.value(),ex.getMessage() ));
     }
 
@@ -58,18 +56,8 @@ public class ExceptionControllerAdvice {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseError<>(false, HttpStatus.BAD_REQUEST.value(),ex.getMessage() ));
     }
 
-    @ExceptionHandler(VerifyException.class)
-    public ResponseEntity<ResponseRepository> BadCredentialsException(VerifyException ex){
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ResponseError<>(false, HttpStatus.FORBIDDEN.value(),ex.getMessage() ));
-    }
-
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ResponseRepository> expiredJwtException(ExpiredJwtException ex){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseError<>(false, HttpStatus.UNAUTHORIZED.value(),ex.getMessage() ));
-    }
-
-    @ExceptionHandler(PasswordChangeRequiredException.class)
-    public ResponseEntity<ResponseRepository> passwordChangeRequiredException(PasswordChangeRequiredException ex){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseError<>(false, HttpStatus.UNAUTHORIZED.value(),ex.getMessage() ));
     }
 

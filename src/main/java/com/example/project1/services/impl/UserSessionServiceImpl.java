@@ -1,9 +1,11 @@
 package com.example.project1.services.impl;
 
+import com.example.project1.constants.Constants;
 import com.example.project1.entities.User;
 import com.example.project1.entities.UserSession;
 import com.example.project1.enums.SessionStatus;
 import com.example.project1.exception.InvalidSessionException;
+import com.example.project1.exception.UnauthorizedAccessException;
 import com.example.project1.repository.UserSessionRepository;
 import com.example.project1.services.UserSessionService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ public class UserSessionServiceImpl implements UserSessionService {
     private final UserSessionRepository userSessionRepository;
     @Override
     public boolean isValidSession(UUID session) {
-        UserSession userSession = userSessionRepository.findById(session).orElseThrow(() -> new InvalidSessionException("Invalid session"));
+        UserSession userSession = userSessionRepository.findById(session).orElseThrow(() -> new InvalidSessionException(Constants.ERROR_CODE.INVALID_SESSION));
         boolean isExpiredSession = userSession.getEndAt().isBefore(LocalDateTime.now(ZoneId.systemDefault()));
         if(userSession.getStatus() == SessionStatus.INACTIVE_SESSION.getValue() || isExpiredSession){
             return false;
@@ -36,7 +38,7 @@ public class UserSessionServiceImpl implements UserSessionService {
 
     @Override
     public void disableSession(UUID session) {
-        UserSession userSession = userSessionRepository.findById(session).orElseThrow(() -> new InvalidSessionException("Invalid session"));
+        UserSession userSession = userSessionRepository.findById(session).orElseThrow(() -> new InvalidSessionException(Constants.ERROR_CODE.INVALID_SESSION));
 
         userSession.setStatus(SessionStatus.INACTIVE_SESSION.getValue());
 

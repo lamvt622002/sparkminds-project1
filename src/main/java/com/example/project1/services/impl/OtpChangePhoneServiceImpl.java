@@ -1,5 +1,6 @@
 package com.example.project1.services.impl;
 
+import com.example.project1.constants.Constants;
 import com.example.project1.entities.OtpChangePhone;
 import com.example.project1.entities.OtpVerification;
 import com.example.project1.entities.User;
@@ -35,11 +36,11 @@ public class OtpChangePhoneServiceImpl implements OtpChangePhoneService {
     @Override
     public boolean verifyOtpChangePhone(OtpChangePhone otp) {
         if(otp.getExpireTime().isBefore(LocalDateTime.now(ZoneId.systemDefault()))){
-            throw new UnauthorizedAccessException("OTP expired time");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.EXPIRED_CODE);
         }
 
         if(otp.getIsUsed() == 1){
-            throw new UnauthorizedAccessException("OTP is used");
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.IS_USED_CODE);
         }
         return true;
     }
