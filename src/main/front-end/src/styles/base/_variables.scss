@@ -1,0 +1,82 @@
+$shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+$border-radius: 4px;
+$dividerColor: rgba(255, 255, 255, 0.5);
+
+$color-graybase-100: #bbb9c7;
+$color-graybase-200: #747180;
+$color-graybase-300: #555261;
+$color-graybase-400: #403d4d;
+$color-graybase-500: #312f3d !important;
+$color-graybase-600: #282633;
+$color-graybase-700: #1c1a24;
+$color-graybase-800: #100f14;
+
+$color-purple-100: #edeeff;
+$color-purple-200: #ccd2ff;
+$color-purple-300: #b7a7ff;
+$color-purple-400: #9f8fff;
+$color-purple-500: #806cf5;
+$color-purple-600: #6a5ce3;
+
+$color-white-100: #fff;
+
+$color-pink-200: #e5d0e7;
+$color-pink-300: #d9b4dc;
+$color-pink-400: #cf7ed6;
+$color-pink-500: #c85cd1;
+$color-pink-bright: #ff3ec6;
+
+$color-green-400: #5bc27a;
+
+$mobile: 415px;
+$tablet: 768px;
+$tablet-s: 600px;
+$large: 1024px;
+$desktop: 1400px;
+$laptop: 1660px;
+$font: 'Roboto', sans-serif;
+
+$min-card-width: 152px;
+$card-height: 190px;
+
+@keyframes spin-animation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-animation-reverse {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes jump-shaking {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateY(-9px);
+  }
+  35% {
+    transform: translateY(-9px) rotate(17deg);
+  }
+  55% {
+    transform: translateY(-9px) rotate(-17deg);
+  }
+  65% {
+    transform: translateY(-9px) rotate(17deg);
+  }
+  75% {
+    transform: translateY(-9px) rotate(-17deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+}

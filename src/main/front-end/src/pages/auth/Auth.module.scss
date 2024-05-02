@@ -1,0 +1,100 @@
+@import 'styles/base/mixin.scss';
+@import 'styles/base/variables.scss';
+
+.layoutAuth{
+    @include flex(center, center);
+    height: 100vh;
+
+    .link{
+        text-decoration: none;
+    }
+    .form {
+        box-shadow: $shadow;
+        width: 400px;
+        border-radius: 10px;
+        margin: 32px 0;
+        padding: 32px;
+        background-color: transparent;
+        backdrop-filter: blur(50px);
+    
+        .boxGrid {
+          width: 100%;
+          padding: 20px 5px 20px 18px;
+    
+          .input {
+            border: 1px solid #e0e0e0;
+            color: white;
+    
+            &:focus {
+              border: 1px solid #e0e0e0;
+            }
+          }
+    
+          .divider {
+            background-color: white;
+            width: 100%;
+            margin-top: 16px;
+            margin-bottom: 16px;
+          }
+    
+          .link {
+            color: white;
+            font-weight: 600;
+            margin: 10px 0;
+            display: block;
+            text-align: center;
+          }
+        }
+        .btnBack {
+            color: white;
+            font-size: 36px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        
+            .iconBack {
+              color: $color-graybase-100;
+              font-size: 36px;
+            }
+          }
+    }
+}
+.mainLayout{
+    width: 30%;
+    .formHeader{
+        text-align: center;
+        margin-bottom: 10px;
+    }
+}
+.authLink{
+    display: flex;
+    justify-content: space-evenly;
+}
+.verifyEmail{
+    .body{
+        @include flex(center, center);
+        height: 100vh;
+    }
+    .cardMain{
+        padding: 100px;
+    }
+    .content{
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        justify-content: center;
+        align-items: center;
+    }
+    .logo {
+        width: 200px;
+        margin: auto;
+        pointer-events: none;
+        user-select: none;
+        background-color: transparent;
+        backdrop-filter: blur(50px);
+    }
+    .link{
+        text-decoration: none;
+    }
+
+}
