@@ -1,17 +1,18 @@
 package com.example.project1.services.impl;
 
 import com.example.project1.constants.Constants;
-import com.example.project1.entities.Authorities;
+import com.example.project1.entities.Customer;
 import com.example.project1.entities.RefreshToken;
 import com.example.project1.entities.User;
 import com.example.project1.entities.UserSession;
-import com.example.project1.enums.Role;
 import com.example.project1.enums.SessionStatus;
 import com.example.project1.enums.UserStatus;
 import com.example.project1.exception.*;
+import com.example.project1.mapper.CustomerMapper;
 import com.example.project1.payload.request.*;
 import com.example.project1.payload.response.JWTPayLoad;
 import com.example.project1.payload.response.LoginResponse;
+import com.example.project1.repository.CustomerRepository;
 import com.example.project1.repository.RefreshTokenRepository;
 import com.example.project1.repository.UserRepository;
 import com.example.project1.repository.UserSessionRepository;
@@ -31,7 +32,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -61,8 +61,10 @@ public class AuthServiceImpl implements AuthService {
     private final UserSessionService userSessionService;
     private final UserSessionRepository userSessionRepository;
     private final GoogleAuthenticatorServiceImpl googleAuthenticatorService;
+    private final CustomerMapper userMapper;
+    private final CustomerRepository customerRepository;
 
-    public AuthServiceImpl(UserRepository userRepository, UserService userService, PasswordEncoder passwordEncoder, AuthoritiesService authoritiesService, JwtUtilily jwtUtility, SendingEmailService emailService, @Lazy AuthenticationManager authenticationManager, UserDetailsService userDetailsService, UserDetailsServiceSecurity userDetailsServiceSecurity, RefreshTokenService refreshTokenService, RefreshTokenRepository refreshTokenRepository, PasswordGenerator passwordGenerator, UserSessionService userSessionService, UserSessionRepository userSessionRepository, GoogleAuthenticatorServiceImpl googleAuthenticatorService) {
+    public AuthServiceImpl(UserRepository userRepository, UserService userService, PasswordEncoder passwordEncoder, AuthoritiesService authoritiesService, JwtUtilily jwtUtility, SendingEmailService emailService, @Lazy AuthenticationManager authenticationManager, UserDetailsService userDetailsService, UserDetailsServiceSecurity userDetailsServiceSecurity, RefreshTokenService refreshTokenService, RefreshTokenRepository refreshTokenRepository, PasswordGenerator passwordGenerator, UserSessionService userSessionService, UserSessionRepository userSessionRepository, GoogleAuthenticatorServiceImpl googleAuthenticatorService, CustomerMapper userMapper, CustomerRepository customerRepository) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -78,42 +80,13 @@ public class AuthServiceImpl implements AuthService {
         this.userSessionService = userSessionService;
         this.userSessionRepository = userSessionRepository;
         this.googleAuthenticatorService = googleAuthenticatorService;
-    }
-
-    @Override
-    @Transactional
-    public void register(RegisterRequest registerRequest) {
-        validateRegisterRequest(registerRequest);
-
-        String passwordEncode = passwordEncoder.encode(registerRequest.getPassword());
-
-        Authorities defaultAuthority = authoritiesService.findAuthorityByAuthority(Role.USER.name())
-                .orElseThrow(() -> new DataNotFoundException("Invalid authority"));
-
-        User user = User.builder()
-                .firstName(registerRequest.getFirstName())
-                .lastName(registerRequest.getLastName())
-                .birthDay(registerRequest.getBirthDay())
-                .phoneNumber(registerRequest.getPhoneNumber())
-                .email(registerRequest.getEmail())
-                .password(passwordEncode)
-                .failedLoginAttempts(0)
-                .role(defaultAuthority)
-                .status(UserStatus.INACTIVE.getValue())
-                .build();
-
-        User userSaved = userRepository.save(user);
-
-        sendingEmailService.sendVerificationEmail(userSaved);
+        this.userMapper = userMapper;
+        this.customerRepository = customerRepository;
     }
 
     @Override
     public String login(LoginRequest loginRequest, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
-
-        User user = userRepository.findUserByEmail(userDetails.getUsername()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, userDetails.getUsername()));
 
         String qrCode;
 
@@ -128,61 +101,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponse twoFactorAuthenticate(GoogleValidateCodeRequest googleValidateCodeRequest) {
         if(!googleAuthenticatorService.isInvalidCode(googleValidateCodeRequest)){
-            throw new BadRequestException("Invalid code");
+            throw new BadRequestException(Constants.ERROR_CODE.INVALID_CODE, googleValidateCodeRequest.getCode());
         }
 
         User user = userRepository.findUserByEmail(googleValidateCodeRequest.getUserName()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, googleValidateCodeRequest.getUserName()));
 
-        return LoginResponse.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .birthDay(user.getBirthDay())
-                .phoneNumber(user.getPhoneNumber())
-                .role(user.getRole().getAuthority())
-                .status(UserStatus.fromValue(user.getStatus()))
-                .build();
-    }
-
-    @Override
-    public HttpHeaders responseCookies(String email) {
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, email));
-
-        final UserSession userSession = userSessionService.createUserSession(user);
-
-        JWTPayLoad  jwtPayLoad = new JWTPayLoad(user.getId(), user.getEmail(), userSession.getSessionId().toString());
-
-        final String accessToken = jwtUtility.generateToken(jwtPayLoad, 30);
-
-        final RefreshToken refreshToken = refreshTokenService.createRefreshToken(jwtPayLoad);
-
-        ResponseCookie access_Token = ResponseCookie.from("access_token", accessToken)
-                .httpOnly(false)
-                .secure(true)
-                .path("/")
-                .maxAge(2* 24 * 60 * 60)
-                .domain("localhost")
-                .build();
-        ResponseCookie refresh_Token = ResponseCookie.from("refresh_token", refreshToken.getToken())
-                .httpOnly(false)
-                .secure(true)
-                .path("/")
-                .maxAge(2* 24 * 60 * 60)
-                .domain("localhost")
-                .build();
-        ResponseCookie session = ResponseCookie.from("session", userSession.getSessionId().toString())
-                .httpOnly(false)
-                .secure(true)
-                .path("/")
-                .maxAge(2* 24 * 60 * 60)
-                .domain("localhost")
-                .build();
-
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(HttpHeaders.SET_COOKIE, access_Token.toString());
-        responseHeaders.add(HttpHeaders.SET_COOKIE, refresh_Token.toString());
-        responseHeaders.add(HttpHeaders.SET_COOKIE, session.toString());
-        return responseHeaders;
+        return userMapper.userToLoginResponse(user);
     }
 
     @Override
@@ -348,17 +272,5 @@ public class AuthServiceImpl implements AuthService {
         user.setStatus(UserStatus.ACTIVE.getValue());
 
         userRepository.save(user);
-    }
-
-    private void validateRegisterRequest(RegisterRequest registerRequest) {
-        if (!registerRequest.getPassword().equals(registerRequest.getConfirmPassword())) {
-            throw new BadRequestException(Constants.ERROR_CODE.INVALID_PASSWORD_AND_CONFIRM_PASSWORD);
-        }
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new DataIntegrityViolationException(Constants.ERROR_CODE.DUPLICATE_OLD_EMAIL_AND_NEW_EMAIL);
-        }
-        if (userRepository.existsByPhoneNumber(registerRequest.getPhoneNumber())) {
-            throw new DataIntegrityViolationException(Constants.ERROR_CODE.PHONE_NUMBER_ALREADY_EXISTS);
-        }
     }
 }

@@ -104,8 +104,8 @@ export default class APIClient {
         withCredentials:true,
         headers: {
           'Content-Type': config?.headers?.['Content-Type'] ? config.headers['Content-Type'] : 'application/json',
-          Authorization: Cookies.get('refresh_token')
-            ? `${Cookies.get('refresh_token')}`
+          Authorization: Cookies.get('access_token')
+            ? `${Cookies.get('access_token')}`
             : '',
           ...config?.headers,
         },

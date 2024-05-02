@@ -6,11 +6,14 @@ import lombok.*;
 import java.util.List;
 
 //@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "test")
 @NoArgsConstructor
 @RequiredArgsConstructor
+@AllArgsConstructor
+@ToString
 public class Test  extends AuditTable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

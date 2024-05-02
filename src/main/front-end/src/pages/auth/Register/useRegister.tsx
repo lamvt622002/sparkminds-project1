@@ -40,7 +40,7 @@ const useRegister = () => {
         })
         if(res.status === 204){
             toast.success("Register successfully!")
-            navigate("/verify-email")
+            navigate(`/verify-email/${data.email}`)
         }
         else{
             if(Array.isArray(res.data.message)){

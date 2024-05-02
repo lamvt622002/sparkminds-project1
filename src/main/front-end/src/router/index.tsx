@@ -22,7 +22,7 @@ export default function WebRoute(){
                 <Route path="register" element={user? <Navigate to={"/home"}/> : <Register/>}/>
                 <Route path="forgot-password" element={user? <Navigate to={"/home"}/> : <ForgotPassword/>}/>
                 <Route path="change-password" element={user? <Navigate to={"/home"}/> : <ChangePassword/>}/>
-                <Route path="verify-email" element={user? <Navigate to={"/home"}/> : <VerifyEmail/>}/>
+                <Route path="verify-email/:email" element={user? <Navigate to={"/home"}/> : <VerifyEmail/>}/>
                 {/* regular route*/}
                 <Route path="dash-board" element={<HomePage/>}/>
                 <Route  path="/*" element={user? <RegularRoute/> : <Navigate to={"/login"}/>}/>

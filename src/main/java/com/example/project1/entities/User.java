@@ -2,6 +2,7 @@ package com.example.project1.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,25 +11,17 @@ import java.util.List;
 
 @Entity
 @Data
+@Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @Table(name = "users")
 public class User extends AuditTable {
     @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NonNull
-    private String firstName;
-
-    @NonNull
-    private String lastName;
-
-    @NonNull
-    private LocalDate birthDay;
 
     @NonNull
     private String phoneNumber;

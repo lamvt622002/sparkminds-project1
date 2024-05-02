@@ -1,5 +1,6 @@
 package com.example.project1.payload.request;
 
+import com.example.project1.annotations.ValidChangePasswordWithoutAuth;
 import com.example.project1.constants.Constants;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ValidChangePasswordWithoutAuth(message = "{error.password.duplicate}")
 public class ChangePasswordWithoutAuthRequest {
 
     @Pattern(regexp = Constants.EMAIL_REGEX, message = "{error.email.invalid}")

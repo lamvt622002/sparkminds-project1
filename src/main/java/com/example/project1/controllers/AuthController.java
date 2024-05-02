@@ -7,6 +7,7 @@ import com.example.project1.payload.response.RefreshTokenResponse;
 import com.example.project1.payload.response.ResponseMessage;
 import com.example.project1.payload.response.ResponseRepository;
 import com.example.project1.services.AuthService;
+import com.example.project1.services.CookiesService;
 import com.example.project1.services.OtpVerificationService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
 
+    private final CookiesService cookiesService;
+
     private final OtpVerificationService otpVerificationService;
 
     @PostMapping("/login")
@@ -35,16 +38,9 @@ public class AuthController {
     public ResponseEntity<ResponseRepository> twoFactorAuthenticate(@Valid @RequestBody GoogleValidateCodeRequest googleValidateCodeRequest){
         LoginResponse loginResponse = authService.twoFactorAuthenticate(googleValidateCodeRequest);
 
-        HttpHeaders responseCookies  = authService.responseCookies(loginResponse.getEmail());
+        HttpHeaders responseCookies  = cookiesService.responseCookies(loginResponse.getEmail());
 
         return ResponseEntity.status(HttpStatus.OK).headers(responseCookies).body(new ResponseMessage<>(true, HttpStatus.OK.value(),loginResponse));
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest){
-        authService.register(registerRequest);
-
-        return  ResponseEntity.noContent().build();
     }
 
     @PostMapping("/refresh-token")

@@ -7,13 +7,15 @@ export const CONFIG = {
             REFRESH: 'api/auth/refresh',
             FORGOT_PASSWORD: 'api/auth/forgot-password',
             CHANGE_PASSWORD: 'api/auth/change-password',
-            TWO_AUTH:'api/auth/two-auth'
+            TWO_AUTH:'api/auth/two-auth',
+            RESENT_VERIFY_LINK: 'api/auth/resent-verify-link'
         },
         USER:{
             CHANGE_EMAIL:'api/user/change-email',
             CHANGE_PASSWORD:'api/user/change-password',
             CHANGE_PHONE:'api/user/change-phone',
-            CHANGE_PHONE_VERIFY:'api/user/change-phone-verify'
+            CHANGE_PHONE_VERIFY:'api/user/change-phone-verify',
+            LOGOUT:'api/user/logout'
         }
     },
     PAGE_URLS: {

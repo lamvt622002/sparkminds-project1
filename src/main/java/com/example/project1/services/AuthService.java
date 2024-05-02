@@ -8,13 +8,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 
 public interface AuthService {
-    void register(RegisterRequest registerRequest);
-
     String login(LoginRequest loginRequest, HttpServletResponse response);
 
     LoginResponse twoFactorAuthenticate(GoogleValidateCodeRequest googleValidateCodeRequest);
-
-    HttpHeaders responseCookies(String email);
 
     String refreshToken(RefreshTokenRequest request);
 

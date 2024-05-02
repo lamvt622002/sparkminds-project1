@@ -1,6 +1,7 @@
 package com.example.project1.services.impl;
 
 import com.example.project1.constants.Constants;
+import com.example.project1.entities.Customer;
 import com.example.project1.entities.LinkVerification;
 import com.example.project1.entities.User;
 import com.example.project1.enums.UserStatus;
@@ -15,6 +16,7 @@ import com.example.project1.utitilies.JwtUtilily;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -71,7 +73,22 @@ public class LinkVerificationServiceImpl implements LinkVerificationService {
 
         enableUserByLinkVerification(linkVerification);
 
-        theModel.addAttribute("Register", new RegisterResponse(user.getId(),user.getFirstName(), user.getLastName(), user.getBirthDay(), user.getPhoneNumber(), user.getEmail(), user.getFailedLoginAttempts(), user.getLockoutTime(), user.getRole().getAuthority(), user.getStatus(), user.getCreatedAt(), user.getUpdatedAt()));
+        Customer customer =(Customer) Hibernate.unproxy(user);
+
+        theModel.addAttribute("Register", new RegisterResponse(
+                customer.getId(),
+                customer.getFirstName(),
+                customer.getLastName(),
+                customer.getBirthDay(),
+                customer.getPhoneNumber(),
+                customer.getEmail(),
+                customer.getFailedLoginAttempts(),
+                customer.getLockoutTime(),
+                customer.getRole().getAuthority(),
+                customer.getStatus(),
+                customer.getCreatedAt(),
+                customer.getUpdatedAt()
+        ));
 
         return "verify_register.html";
     }
@@ -116,7 +133,9 @@ public class LinkVerificationServiceImpl implements LinkVerificationService {
 
         userSessionService.clearAllUserSession(user);
 
-        theModel.addAttribute("Register", new RegisterResponse(user.getId(),user.getFirstName(), user.getLastName(), user.getBirthDay(), user.getPhoneNumber(), user.getEmail(), user.getFailedLoginAttempts(), user.getLockoutTime(), user.getRole().getAuthority(), user.getStatus(), user.getCreatedAt(), user.getUpdatedAt()));
+        Customer customer =(Customer) Hibernate.unproxy(user);
+
+        theModel.addAttribute("Register", new RegisterResponse(customer.getId(),customer.getFirstName(), customer.getLastName(), customer.getBirthDay(), user.getPhoneNumber(), user.getEmail(), user.getFailedLoginAttempts(), user.getLockoutTime(), user.getRole().getAuthority(), user.getStatus(), user.getCreatedAt(), user.getUpdatedAt()));
 
         return "verify_register.html";
     }

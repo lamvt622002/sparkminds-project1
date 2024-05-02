@@ -2,8 +2,10 @@ import { Box, Card, CardContent, CardMedia, Typography } from "@mui/material";
 import { CONFIG } from "common/config";
 import styles from 'pages/auth/Auth.module.scss';
 import { ButtonAuth } from "styles/Button";
+import useVerifyEmail from "./useVerifyEmail";
 
 const VerifyEmail = () => {
+    const {disable, email, handleResentLink} = useVerifyEmail();
     return (
         <Box className={styles.verifyEmail}>
             <Box className={styles.body}>
@@ -19,16 +21,16 @@ const VerifyEmail = () => {
                             Verify your email address
                         </Typography>
                         <Typography variant="body2">
-                            You have entered abc as the email address for your account.
+                            You have entered {email} as the email address for your account.
                         </Typography>
                         <Typography variant="body2">
                             Please verify this email address by clicking button below.
                         </Typography>
-                        <ButtonAuth variant="contained">
+                        <ButtonAuth variant="contained" disabled={disable}>
                             <a href="https://mail.google.com/mail/u/0/" className={styles.link}> Verify your email</a>
                         </ButtonAuth>
-                        <ButtonAuth variant="contained">
-                            <a href="https://mail.google.com/mail/u/0/" className={styles.link}>Don't receive eamil. Resent</a>
+                        <ButtonAuth variant="contained" disabled={disable} onClick={handleResentLink}>
+                            Don't receive eamil. Resent
                         </ButtonAuth>
                     </CardContent>
                 </Card>

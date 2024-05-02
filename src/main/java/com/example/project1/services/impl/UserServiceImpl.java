@@ -75,10 +75,6 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException(Constants.ERROR_CODE.DUPLICATE_OLD_PASSWORD_NEW_PASSWORD);
         }
 
-        if(!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmNewPassword())){
-            throw new BadRequestException(Constants.ERROR_CODE.INVALID_PASSWORD_AND_CONFIRM_PASSWORD);
-        }
-
         String encodeNewPassword = passwordEncoder.encode(changePasswordRequest.getNewPassword());
 
         user.setPassword(encodeNewPassword);
@@ -99,10 +95,6 @@ public class UserServiceImpl implements UserService {
             throw new UnauthorizedAccessException(Constants.ERROR_CODE.INVALID_PASSWORD);
         }
 
-        if(userRepository.existsByEmail(changeEmailRequest.getNewEmail())){
-            throw new BadRequestException(Constants.ERROR_CODE.EMAIL_ALREADY_EXISTS);
-        }
-
         if(user.getEmail().equals(changeEmailRequest.getNewEmail())){
             throw new BadRequestException(Constants.ERROR_CODE.DUPLICATE_OLD_EMAIL_AND_NEW_EMAIL);
         }
@@ -118,10 +110,6 @@ public class UserServiceImpl implements UserService {
 
         if(!passwordEncoder.matches(changePhoneRequest.getPassword(),user.getPassword())){
             throw new BadRequestException(Constants.ERROR_CODE.INVALID_PASSWORD);
-        }
-
-        if(userRepository.existsByPhoneNumber(changePhoneRequest.getPhoneNumber())){
-            throw new BadRequestException(Constants.ERROR_CODE.PHONE_NUMBER_ALREADY_EXISTS);
         }
 
         if(user.getPhoneNumber().equals(changePhoneRequest.getPhoneNumber())){

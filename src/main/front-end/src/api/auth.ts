@@ -24,7 +24,6 @@ export const register = (first_name:string, last_name:string, birth_day:string, 
   })
 }
 
-
 export const forgotPassowrd = (email:string) => {
   return APIClient.post(baseApi + CONFIG.ENDPOINT_API.AUTH.FORGOT_PASSWORD, {email: email})
 }
@@ -35,6 +34,13 @@ export const changePassword = (email:string, oldPassword:string, newPassword:str
     email:email,
     oldPassword:oldPassword,
     newPassword:newPassword
+  })
+}
+
+export const resentVerifyLink = (email:string) => {
+  return APIClient.post(baseApi + CONFIG.ENDPOINT_API.AUTH.RESENT_VERIFY_LINK, 
+  {
+    email:email,
   })
 }
 

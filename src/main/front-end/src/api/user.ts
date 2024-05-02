@@ -18,3 +18,7 @@ export const changePhone = (password:string, phoneNumber:string) => {
 export const changePhoneVerify = (otp:string) => {
     return APIClient.post(baseApi + CONFIG.ENDPOINT_API.USER.CHANGE_PHONE_VERIFY, { otp:otp})
 }
+
+export const logout = () => {
+    return APIClient.post(baseApi + CONFIG.ENDPOINT_API.USER.LOGOUT)
+}

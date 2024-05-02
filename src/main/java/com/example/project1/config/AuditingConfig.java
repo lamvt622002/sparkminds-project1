@@ -21,9 +21,11 @@ public class AuditingConfig{
     @Bean
     public AuditorAware<String> auditorProvider() {
         return () -> {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-            return Optional.ofNullable(username);
+            if(SecurityContextHolder.getContext().getAuthentication() != null){
+                String username = SecurityContextHolder.getContext().getAuthentication().getName();
+                return Optional.ofNullable(username);
+            }
+            return Optional.of("anonymousUser");
         };
     }
 }

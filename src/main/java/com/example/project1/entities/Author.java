@@ -24,7 +24,7 @@ public class Author extends AuditTable{
     private String firstName;
 
     @NonNull
-    private LocalDate birthDate;
+    private LocalDate birthDay;
 
     @ManyToMany(mappedBy = "authors")
     private List<Book> books;

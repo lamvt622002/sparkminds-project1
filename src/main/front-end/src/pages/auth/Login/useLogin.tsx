@@ -40,7 +40,7 @@ const useLogin = () => {
         }
         else if(res.status === 403){
             toast.error(res.data.message) 
-            navigate("/verify-email")
+            navigate(`/verify-email/${data.email}`)
         }
         else if(res.status === 401){
             toast.error(res.data.message) 

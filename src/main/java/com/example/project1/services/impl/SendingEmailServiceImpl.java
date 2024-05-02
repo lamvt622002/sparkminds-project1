@@ -1,5 +1,6 @@
 package com.example.project1.services.impl;
 
+import com.example.project1.entities.Customer;
 import com.example.project1.entities.LinkVerification;
 import com.example.project1.entities.OtpVerification;
 import com.example.project1.entities.User;
@@ -58,51 +59,70 @@ public class SendingEmailServiceImpl implements SendingEmailService {
 
     @Override
     public void sendVerificationChangeEmail(User user, String newEmail) {
+        Customer customer = null;
+        if(user  instanceof Customer){
+            customer = (Customer) user;
+        }
         LinkVerification linkVerification = linkVerificationService.createLinkChangeEmailVerification(user, newEmail);
 
-        String text = String.format(
-                """
-                        Hi. %s\s
-                        
-                        You are recently requested to change your email\s
-                        
-                        Please click this link to change your email\s
+        if(customer != null){
+            String text = String.format(
+                    """
+                            Hi. %s\s
+                            
+                            You are recently requested to change your email\s
+                            
+                            Please click this link to change your email\s
+    
+                            %s\s
+                           
+                            lamvt - Sparkminds""", customer.getFirstName() + customer.getLastName(),apiChangeEmail + linkVerification.getToken());
 
-                        %s\s
-                       
-                        lamvt - Sparkminds""", user.getFirstName() + user.getLastName(),apiChangeEmail + linkVerification.getToken());
-
-        sendMessage(newEmail, "Change email verification", text);
+            sendMessage(newEmail, "Change email verification", text);
+        }
     }
 
     @Override
     public void sendResetPassword(User user, String password) {
-        String text = String.format(
-                """
-                        Hi. %s\s
-                        You are recently requested to reset your password\s
-                        Here is your new password\s
+        Customer customer = null;
+        if(user  instanceof Customer){
+            customer = (Customer) user;
+        }
 
-                        %s\s
-                        
-                        Please change new password after login again\s
-                       
-                        lamvt - Sparkminds""", user.getFirstName() + user.getLastName(),password );
-        sendMessage(user.getEmail(), "Sparkminds-Project1: Reset password", text);
+        if(customer != null){
+            String text = String.format(
+                    """
+                            Hi. %s\s
+                            You are recently requested to reset your password\s
+                            Here is your new password\s
+    
+                            %s\s
+                            
+                            Please change new password after login again\s
+                           
+                            lamvt - Sparkminds""", customer.getFirstName() + customer.getLastName(),password );
+            sendMessage(user.getEmail(), "Sparkminds-Project1: Reset password", text);
+        }
     }
 
     @Override
     public void sentOtpVerification(User user) {
-        OtpVerification otpVerification = otpVerificationService.createOtpVerification(user);
-        String text = String.format(
-                """
-                        Hi. %s\s
-                        Verify your email address\s
-                        You are recently signed up for your account\s
-                        Please enter the following verification code
-                        %s\s
-                        lamvt - Sparkminds""", otpVerification.getUser().getFirstName() + otpVerification.getUser().getLastName(), otpVerification.getOtp() );
-        sendMessage(user.getEmail(), "Sparkminds-Project1: Email verification", text);
+        Customer customer = null;
+        if(user  instanceof Customer){
+            customer = (Customer) user;
+        }
+        if(customer != null){
+            OtpVerification otpVerification = otpVerificationService.createOtpVerification(user);
+            String text = String.format(
+                    """
+                            Hi. %s\s
+                            Verify your email address\s
+                            You are recently signed up for your account\s
+                            Please enter the following verification code
+                            %s\s
+                            lamvt - Sparkminds""", customer.getFirstName() + customer.getLastName(), otpVerification.getOtp() );
+            sendMessage(user.getEmail(), "Sparkminds-Project1: Email verification", text);
+        }
     }
 
 
