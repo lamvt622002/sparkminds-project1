@@ -1,0 +1,17 @@
+@import 'styles/base/mixin.scss';
+@import 'styles/base/variables.scss';
+.layout{
+    @include flex(center, center);
+    flex-direction: row;
+    box-shadow: $shadow;
+    height: 64px;
+    padding: 0;
+    color: white;
+    .flew_row{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap:2px;
+    }
+}
