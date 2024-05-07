@@ -44,9 +44,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<ResponseRepository> refreshToken(@Valid @RequestBody RefreshTokenRequest request){
-        String newAccessToken  = authService.refreshToken(request);
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage<>(true, HttpStatus.OK.value(), new RefreshTokenResponse(newAccessToken, request.getRefreshToken())));
+    public ResponseEntity<Void> refreshToken(@Valid @RequestBody RefreshTokenRequest request){
+        HttpHeaders responseCookies  = cookiesService.refreshTokenResponseCookies(request);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/resent-verify-link")

@@ -1,6 +1,5 @@
 package com.example.project1.controllers;
 
-import com.example.project1.entities.OtpChangePhone;
 import com.example.project1.payload.request.ChangeEmailRequest;
 import com.example.project1.payload.request.ChangePasswordRequest;
 import com.example.project1.payload.request.ChangePhoneRequest;

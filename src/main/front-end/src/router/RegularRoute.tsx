@@ -1,5 +1,7 @@
 import { Box } from "@mui/material";
 import HomePage from "pages/home";
+import CreateBook from "pages/home/CreateBook";
+import EditBook from "pages/home/EditBook";
 import ChangeEmail from "pages/profile/ChangeEmail";
 import ChangePassword from "pages/profile/ChangePassword";
 import ChangePhone from "pages/profile/ChangePhone";
@@ -10,6 +12,8 @@ export default function RegularRoute(){
         <Box>
             <Routes>
                 <Route path="home" element={<HomePage/>}/>
+                <Route path="home/create-book" element={<CreateBook/>}/>
+                <Route path="home/edit-book/:bookId" element={<EditBook/>}/>
                 <Route path="/profile/change-email" element={<ChangeEmail/>} />
                 <Route path="/profile/change-phone" element={<ChangePhone/>} />
                 <Route path="/profile/change-password" element={<ChangePassword/>} />

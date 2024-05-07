@@ -75,4 +75,44 @@ public class OtpVerificationServiceImpl implements OtpVerificationService {
 
         userRepository.save(user);
     }
+
+    @Override
+    public OtpVerification createOtpChangePhone(User user, String newPhone) {
+        String otp  = otpGenerator.getRandomOtp();
+        LocalDateTime expireTime = LocalDateTime.now(ZoneId.systemDefault()).plusMinutes(1);
+        OtpVerification otpChangePhone = new OtpVerification(user, otp, 0,expireTime);
+        otpChangePhone.setNewPhoneNumber(newPhone);
+        otpVerificationRepository.save(otpChangePhone);
+        return otpChangePhone;
+    }
+
+    @Override
+    public boolean verifyOtpChangePhone(OtpVerification otp) {
+        if(otp.getNewPhoneNumber() == null ){
+            throw new UnauthorizedAccessException("Invalid phone number");
+        }
+        if(otp.getExpireTime().isBefore(LocalDateTime.now(ZoneId.systemDefault()))){
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.EXPIRED_CODE);
+        }
+
+        if(otp.getIsUsed() == 1){
+            throw new UnauthorizedAccessException(Constants.ERROR_CODE.IS_USED_CODE);
+        }
+        return true;
+    }
+
+    @Override
+    public OtpVerification disableOtpChangePhone(OtpVerification otpChangePhone) {
+        otpChangePhone.setIsUsed(1);
+
+        otpVerificationRepository.save(otpChangePhone);
+        return otpChangePhone;
+    }
+
+    @Override
+    public void updateUserByOtpChangePhone(OtpVerification otpChangePhone) {
+        User user = otpChangePhone.getUser();
+        user.setPhoneNumber(otpChangePhone.getNewPhoneNumber());
+        userRepository.save(user);
+    }
 }

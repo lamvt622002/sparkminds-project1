@@ -1,8 +1,8 @@
-package com.example.project1.payload.dto;
+package com.example.project1.payload.response;
 
-import com.example.project1.entities.Author;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @Builder
-public class BookDto {
+public class BookResponse {
     private Long id;
     private String title;
     private String language;
@@ -22,5 +22,7 @@ public class BookDto {
     private String description;
     private Integer quantity;
     private String image;
-    private List<String> authorsFirstName;
+    private List<String> authorName;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

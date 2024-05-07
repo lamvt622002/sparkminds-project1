@@ -1,5 +1,6 @@
 package com.example.project1.entities;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +27,9 @@ public class OtpVerification extends AuditTable {
 
     @NonNull
     private String otp;
+
+    @Nullable
+    private String newPhoneNumber;
 
     @NonNull
     private Integer isUsed;

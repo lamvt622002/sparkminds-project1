@@ -4,11 +4,15 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+@EqualsAndHashCode(callSuper = true, exclude = "books")
 @Entity
 @Table(name = "author")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Author extends AuditTable{
@@ -26,6 +30,6 @@ public class Author extends AuditTable{
     @NonNull
     private LocalDate birthDay;
 
-    @ManyToMany(mappedBy = "authors")
-    private List<Book> books;
+    @ManyToMany(mappedBy = "authors", cascade = CascadeType.ALL)
+    private Set<Book> books =  new HashSet<>();
 }

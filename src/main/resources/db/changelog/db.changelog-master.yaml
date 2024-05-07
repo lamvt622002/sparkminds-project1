@@ -12,10 +12,6 @@ databaseChangeLog:
     - include:
           file: classpath:/db/changelog/changes/otp_verification-schema.sql
     - include:
-          file: classpath:/db/changelog/changes/otp_change_phone-schema.sql
-    - include:
-          file: classpath:/db/changelog/changes/refresh_token-schema.sql
-    - include:
           file: classpath:/db/changelog/changes/user_session-schema.sql
     - include:
           file: classpath:/db/changelog/changes/category-schema.sql

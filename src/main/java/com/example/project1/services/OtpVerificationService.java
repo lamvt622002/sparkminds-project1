@@ -12,4 +12,12 @@ public interface OtpVerificationService {
     OtpVerification disableOtpVerification(OtpVerification otp);
 
     void enableUserByOtp(OtpRequest otpRequest);
+
+    OtpVerification createOtpChangePhone(User user, String newPhone);
+
+    boolean verifyOtpChangePhone(OtpVerification otpChangePhone);
+
+    OtpVerification disableOtpChangePhone(OtpVerification otpChangePhone);
+
+    void updateUserByOtpChangePhone(OtpVerification otpChangePhone);
 }

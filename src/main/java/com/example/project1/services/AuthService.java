@@ -12,8 +12,6 @@ public interface AuthService {
 
     LoginResponse twoFactorAuthenticate(GoogleValidateCodeRequest googleValidateCodeRequest);
 
-    String refreshToken(RefreshTokenRequest request);
-
     Authentication authenticate(Authentication authentication);
 
     void resentVerifyLink(EmailRequest request);

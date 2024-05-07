@@ -11,6 +11,22 @@
         max-height: calc(100vh - 450px);
         overflow-y: auto;
     }
+    .pagination {
+        margin-top: 20px;
+      
+        ul {
+          justify-content: flex-end;
+        }
+      
+        button {
+          color: white;
+        }
+      
+        div {
+          color: white;
+        }
+      }
+      
 }
 
 

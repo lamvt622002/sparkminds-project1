@@ -17,7 +17,7 @@ public class Category extends AuditTable{
     private Long id;
 
     @NonNull
-    private String category_name;
+    private String categoryName;
 
     @OneToMany(mappedBy = "category")
     private List<Book> books;

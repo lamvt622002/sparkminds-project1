@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS otp_verification (
     id INT NOT NULL AUTO_INCREMENT,
     user_id INT NOT NULL,
+    new_phone_number VARCHAR(45),
     otp VARCHAR(6) NOT NULL,
     is_used INT NOT NULL,
     expire_time DATETIME NOT NULL,

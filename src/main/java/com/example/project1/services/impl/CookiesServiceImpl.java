@@ -1,10 +1,10 @@
 package com.example.project1.services.impl;
 
 import com.example.project1.constants.Constants;
-import com.example.project1.entities.RefreshToken;
 import com.example.project1.entities.User;
 import com.example.project1.entities.UserSession;
 import com.example.project1.exception.DataNotFoundException;
+import com.example.project1.payload.request.RefreshTokenRequest;
 import com.example.project1.payload.response.JWTPayLoad;
 import com.example.project1.repository.UserRepository;
 import com.example.project1.services.CookiesService;
@@ -20,8 +20,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CookiesServiceImpl implements CookiesService {
     private final UserRepository userRepository;
+
     private final UserSessionService userSessionService;
+
     private final JwtUtilily jwtUtility;
+
     private final RefreshTokenService refreshTokenService;
     @Override
     public HttpHeaders responseCookies(String email) {
@@ -33,7 +36,7 @@ public class CookiesServiceImpl implements CookiesService {
 
         final String accessToken = jwtUtility.generateToken(jwtPayLoad, 30);
 
-        final RefreshToken refreshToken = refreshTokenService.createRefreshToken(jwtPayLoad);
+        final String refreshToken = refreshTokenService.createRefreshToken(jwtPayLoad);
 
         ResponseCookie access_Token = ResponseCookie.from("access_token", accessToken)
                 .httpOnly(false)
@@ -42,7 +45,7 @@ public class CookiesServiceImpl implements CookiesService {
                 .maxAge(2* 24 * 60 * 60)
                 .domain("localhost")
                 .build();
-        ResponseCookie refresh_Token = ResponseCookie.from("refresh_token", refreshToken.getToken())
+        ResponseCookie refresh_Token = ResponseCookie.from("refresh_token", refreshToken)
                 .httpOnly(false)
                 .secure(true)
                 .path("/")
@@ -61,6 +64,21 @@ public class CookiesServiceImpl implements CookiesService {
         responseHeaders.add(HttpHeaders.SET_COOKIE, access_Token.toString());
         responseHeaders.add(HttpHeaders.SET_COOKIE, refresh_Token.toString());
         responseHeaders.add(HttpHeaders.SET_COOKIE, session.toString());
+        return responseHeaders;
+    }
+
+    @Override
+    public HttpHeaders refreshTokenResponseCookies(RefreshTokenRequest request) {
+        String accessToken = refreshTokenService.refreshToken(request);
+        ResponseCookie access_Token = ResponseCookie.from("access_token", accessToken)
+                .httpOnly(false)
+                .secure(true)
+                .path("/")
+                .maxAge(2* 24 * 60 * 60)
+                .domain("localhost")
+                .build();
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HttpHeaders.SET_COOKIE, access_Token.toString());
         return responseHeaders;
     }
 }

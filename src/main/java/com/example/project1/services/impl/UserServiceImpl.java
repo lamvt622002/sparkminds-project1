@@ -1,7 +1,7 @@
 package com.example.project1.services.impl;
 
 import com.example.project1.constants.Constants;
-import com.example.project1.entities.OtpChangePhone;
+import com.example.project1.entities.OtpVerification;
 import com.example.project1.entities.User;
 import com.example.project1.enums.UserStatus;
 import com.example.project1.exception.BadRequestException;
@@ -9,7 +9,7 @@ import com.example.project1.exception.DataNotFoundException;
 import com.example.project1.exception.DatabaseAccessException;
 import com.example.project1.exception.UnauthorizedAccessException;
 import com.example.project1.payload.request.*;
-import com.example.project1.repository.OtpChangePhoneRepository;
+import com.example.project1.repository.OtpVerificationRepository;
 import com.example.project1.repository.UserRepository;
 import com.example.project1.services.*;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +33,7 @@ public class UserServiceImpl implements UserService {
 
     private final OtpVerificationService otpVerificationService;
 
-    private final OtpChangePhoneService phoneService;
-
-    private final OtpChangePhoneRepository otpChangePhoneRepository;
+    private final OtpVerificationRepository otpVerificationRepository;
 
     private final UserSessionService userSessionService;
 
@@ -116,7 +114,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException(Constants.ERROR_CODE.DUPLICATE_OLD_PHONE_AND_NEW_PHONE);
         }
 
-        OtpChangePhone phone = phoneService.createOtpChangePhone(user, changePhoneRequest.getPhoneNumber());
+        OtpVerification phone = otpVerificationService.createOtpChangePhone(user, changePhoneRequest.getPhoneNumber());
 
         String body = String.format(
         """
@@ -134,12 +132,12 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, email));
 
-        OtpChangePhone otpChangePhone = otpChangePhoneRepository.findByUserIdAndOtp(user.getId(), verifyChangePhoneRequest.getOtp()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.INVALID_CODE, verifyChangePhoneRequest.getOtp()));
+        OtpVerification otpChangePhone = otpVerificationRepository.findByUserIdAndOtp(user.getId(), verifyChangePhoneRequest.getOtp()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.INVALID_CODE, verifyChangePhoneRequest.getOtp()));
 
-         phoneService.verifyOtpChangePhone(otpChangePhone);
+        otpVerificationService.verifyOtpChangePhone(otpChangePhone);
 
-         phoneService.disableOtpChangePhone(otpChangePhone);
+        otpVerificationService.disableOtpChangePhone(otpChangePhone);
 
-         phoneService.updateUserByOtpChangePhone(otpChangePhone);
+        otpVerificationService.updateUserByOtpChangePhone(otpChangePhone);
     }
 }

@@ -11,6 +11,7 @@ import RegularRoute from "./RegularRoute";
 import { Status } from "types/IAccount";
 import HomePage from "pages/home";
 import MainLayout from "components/layouts/MainLayout";
+import CreateBook from "pages/home/CreateBook";
 export default function WebRoute(){
     const {user} = useStore();
 
@@ -24,7 +25,7 @@ export default function WebRoute(){
                 <Route path="change-password" element={user? <Navigate to={"/home"}/> : <ChangePassword/>}/>
                 <Route path="verify-email/:email" element={user? <Navigate to={"/home"}/> : <VerifyEmail/>}/>
                 {/* regular route*/}
-                <Route path="dash-board" element={<HomePage/>}/>
+                <Route path="dash-board" element={<CreateBook/>}/>
                 <Route  path="/*" element={user? <RegularRoute/> : <Navigate to={"/login"}/>}/>
             </Routes>
         </BrowserRouter>

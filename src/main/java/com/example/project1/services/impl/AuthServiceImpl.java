@@ -1,11 +1,8 @@
 package com.example.project1.services.impl;
 
 import com.example.project1.constants.Constants;
-import com.example.project1.entities.Customer;
-import com.example.project1.entities.RefreshToken;
 import com.example.project1.entities.User;
 import com.example.project1.entities.UserSession;
-import com.example.project1.enums.SessionStatus;
 import com.example.project1.enums.UserStatus;
 import com.example.project1.exception.*;
 import com.example.project1.mapper.CustomerMapper;
@@ -13,7 +10,6 @@ import com.example.project1.payload.request.*;
 import com.example.project1.payload.response.JWTPayLoad;
 import com.example.project1.payload.response.LoginResponse;
 import com.example.project1.repository.CustomerRepository;
-import com.example.project1.repository.RefreshTokenRepository;
 import com.example.project1.repository.UserRepository;
 import com.example.project1.repository.UserSessionRepository;
 import com.example.project1.security.UserDetailsSecurity;
@@ -26,8 +22,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,7 +29,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -56,7 +49,6 @@ public class AuthServiceImpl implements AuthService {
     private final UserDetailsService userDetailsService;
     private final UserDetailsServiceSecurity userDetailsServiceSecurity;
     private final RefreshTokenService refreshTokenService;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordGenerator passwordGenerator;
     private final UserSessionService userSessionService;
     private final UserSessionRepository userSessionRepository;
@@ -64,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
     private final CustomerMapper userMapper;
     private final CustomerRepository customerRepository;
 
-    public AuthServiceImpl(UserRepository userRepository, UserService userService, PasswordEncoder passwordEncoder, AuthoritiesService authoritiesService, JwtUtilily jwtUtility, SendingEmailService emailService, @Lazy AuthenticationManager authenticationManager, UserDetailsService userDetailsService, UserDetailsServiceSecurity userDetailsServiceSecurity, RefreshTokenService refreshTokenService, RefreshTokenRepository refreshTokenRepository, PasswordGenerator passwordGenerator, UserSessionService userSessionService, UserSessionRepository userSessionRepository, GoogleAuthenticatorServiceImpl googleAuthenticatorService, CustomerMapper userMapper, CustomerRepository customerRepository) {
+    public AuthServiceImpl(UserRepository userRepository, UserService userService, PasswordEncoder passwordEncoder, AuthoritiesService authoritiesService, JwtUtilily jwtUtility, SendingEmailService emailService, @Lazy AuthenticationManager authenticationManager, UserDetailsService userDetailsService, UserDetailsServiceSecurity userDetailsServiceSecurity, RefreshTokenService refreshTokenService, PasswordGenerator passwordGenerator, UserSessionService userSessionService, UserSessionRepository userSessionRepository, GoogleAuthenticatorServiceImpl googleAuthenticatorService, CustomerMapper userMapper, CustomerRepository customerRepository) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -75,7 +67,6 @@ public class AuthServiceImpl implements AuthService {
         this.userDetailsService = userDetailsService;
         this.userDetailsServiceSecurity = userDetailsServiceSecurity;
         this.refreshTokenService = refreshTokenService;
-        this.refreshTokenRepository = refreshTokenRepository;
         this.passwordGenerator = passwordGenerator;
         this.userSessionService = userSessionService;
         this.userSessionRepository = userSessionRepository;
@@ -107,49 +98,6 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findUserByEmail(googleValidateCodeRequest.getUserName()).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, googleValidateCodeRequest.getUserName()));
 
         return userMapper.userToLoginResponse(user);
-    }
-
-    @Override
-    public String refreshToken(RefreshTokenRequest request) {
-        String token = request.getRefreshToken();
-        String email = null;
-        Map<String, Object> claims;
-
-        try{
-            email = jwtUtility.extractUserName(token);
-        }catch (ExpiredJwtException ex){
-            refreshTokenRepository.delete(refreshTokenService.findByToken(token).orElseThrow(() -> new DataNotFoundException("Refresh token not found")));
-            claims = ex.getClaims();
-            UUID sessionId = UUID.fromString(claims.get("session").toString());
-            UserSession userSession = userSessionRepository.findById(sessionId).orElseThrow(() -> new BadRequestException("Session not found"));
-            userSession.setStatus(SessionStatus.INACTIVE_SESSION.getValue());
-            userSessionRepository.save(userSession);
-            throw new InvalidSessionException(Constants.ERROR_CODE.EXPIRED_SESSION);
-        }
-
-        claims = jwtUtility.extractAllClaim(token);
-
-        UUID sessionId = UUID.fromString(claims.get("session").toString());
-
-        if(!userSessionService.isValidSession(sessionId)){
-            throw new InvalidSessionException(Constants.ERROR_CODE.INVALID_SESSION);
-        }
-
-        String finalEmail = email;
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND, finalEmail));
-
-        final UserSession userSession = userSessionService.createUserSession(user);
-
-        JWTPayLoad  jwtPayLoad = new JWTPayLoad(user.getId(), user.getEmail(), userSession.getSessionId().toString());
-
-        String newAccessToken = refreshTokenService.findByToken(token)
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUser)
-                .map(u -> {
-                    return jwtUtility.generateToken(jwtPayLoad, 1);
-                }).orElseThrow(() -> new DataNotFoundException(Constants.ERROR_CODE.REFRESH_TOKEN_NOT_FOUND));
-
-        return newAccessToken;
     }
 
     @Override

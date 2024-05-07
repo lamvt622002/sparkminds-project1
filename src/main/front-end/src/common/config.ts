@@ -16,6 +16,26 @@ export const CONFIG = {
             CHANGE_PHONE:'api/user/change-phone',
             CHANGE_PHONE_VERIFY:'api/user/change-phone-verify',
             LOGOUT:'api/user/logout'
+        },
+        BOOK:{
+            GET_ALL_BOOK:'api/book/all-book',
+            FILTER_BOOK:'api/book/filter',
+            SEARCH_BOOK:'api/book/search',
+            CREATE_BOOK:'api/book/create-book',
+            EDIT_BOOK:'api/book/edit-book/',
+            GET_A_BOOK:'api/book/get-book/'
+        },
+        CATEGORY:{
+            GET_ALL_CATEGORY:'api/category/all-category'
+        },
+        BOOK_LANGUAGE:{
+            GET_ALL_BOOK_LANGUAGE:'api/language/all-language'
+        },
+        PUBLISHER:{
+            GET_ALL_PUBLISHER:'api/publisher/all-publisher'
+        },
+        AUTHOR:{
+            GET_ALL_AUTHOR:'api/book-author/all-author'
         }
     },
     PAGE_URLS: {

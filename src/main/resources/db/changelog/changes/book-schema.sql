@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS book (
     description TEXT NOT NULL,
     quantity INT NOT NULL,
     image VARCHAR(255) NOT NULL,
+    is_delete INT NOT NULL,
     created_by VARCHAR(45),
     created_at DATETIME,
     last_modified_by VARCHAR(45),

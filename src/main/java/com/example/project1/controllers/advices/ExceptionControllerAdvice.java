@@ -58,7 +58,7 @@ public class ExceptionControllerAdvice {
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ResponseRepository> expiredJwtException(ExpiredJwtException ex){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseError<>(false, HttpStatus.UNAUTHORIZED.value(),ex.getMessage() ));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseError<>(false, 40101,ex.getMessage() ));
     }
 
     @ExceptionHandler(SQLSyntaxErrorException.class)

@@ -4,6 +4,7 @@ import axios, { AxiosError, AxiosResponse } from 'axios'
 import { create } from 'zustand'
 import { IUser } from 'types/IAccount'
 import { toast } from 'react-toastify'
+import Cookies from 'js-cookie';
 const baseApi = process.env.REACT_APP_API_ENDPOINT
 
 const useUserStore = (set: any, get: any) => ({
@@ -26,7 +27,7 @@ const useUserStore = (set: any, get: any) => ({
     try{
       await axios
       .post(`${baseApi}api/auth/refresh-token`, {
-        refreshToken: get().user?.refreshToken,
+        refreshToken: Cookies.get('refresh_token'),
       })
       .then(async (res) => {
         if (res?.data?.data) {

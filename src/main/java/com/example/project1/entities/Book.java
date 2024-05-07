@@ -1,16 +1,21 @@
 package com.example.project1.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = "authors")
 @Entity
 @Table(name = "book")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 public class Book extends AuditTable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,11 +52,17 @@ public class Book extends AuditTable{
     @NonNull
     private String image;
 
-    @ManyToMany
+    @NonNull
+    private Integer isDelete;
+
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "book_author",
-            joinColumns = @JoinColumn(name = "author_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
     )
-    private List<Author> authors;
+    @JsonIgnore
+    private Set<Author> authors = new HashSet<>();
+
+
 }

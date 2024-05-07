@@ -17,7 +17,7 @@ public class Publisher extends AuditTable{
     private Long id;
 
     @NonNull
-    private String publisher_name;
+    private String publisherName;
 
     @OneToMany(mappedBy = "publisher")
     private List<Book> books;

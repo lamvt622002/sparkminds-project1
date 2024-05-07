@@ -1,4 +1,4 @@
-import { Box } from "@mui/material"
+import { Box, Pagination } from "@mui/material"
 import { DataGrid, GridCellParams, GridColDef } from '@mui/x-data-grid'
 import { IBook } from "types/IBook"
 import styles from "components/Table/Table.module.scss"
@@ -9,9 +9,10 @@ interface TableProps{
     totalPage:number,
     currentPage:number,
     handleOnCellClick: (params: GridCellParams) => void
+    handleChangePage:(page:number) => void
 }
 
-const Table = ({columns, rows, loading, handleOnCellClick, totalPage, currentPage}:TableProps) => {
+const Table = ({columns, rows, loading, handleOnCellClick, totalPage, currentPage, handleChangePage}:TableProps) => {
     return(
         <Box className={styles.main}>
             <DataGrid
@@ -37,6 +38,15 @@ const Table = ({columns, rows, loading, handleOnCellClick, totalPage, currentPag
                     boxShadow: '0 0 1px rgba(255, 255, 255, 0.5)',
                     },
                 }}
+            />
+            <Pagination
+              count={totalPage}
+              color="primary"
+              className={styles.pagination}
+              page={currentPage + 1}
+              onChange={(event: React.ChangeEvent<unknown>, page: number) => {
+                if (page !== currentPage && handleChangePage) handleChangePage(page-1)
+              }}
             />       
         </Box>
         
